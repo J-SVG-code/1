@@ -1,0 +1,1242 @@
+<!DOCTYPE html>
+<html lang="es" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="author" content="Joelvy José Salazar Vargas (C.I. 30.022.434)" />
+  <meta name="copyright" content="© 2026 Gestor Pro. Todos los derechos reservados. Joelvy José Salazar Vargas (C.I. 30.022.434)" />
+  <meta name="theme-color" content="#0f172a" />
+  <title>Catálogo Digital — Gestor Pro</title>
+    <link rel="manifest" href="./manifest.json" />
+  <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png" />
+  <link rel="icon" type="image/png" sizes="512x512" href="./icon-512.png" />
+  <link rel="apple-touch-icon" sizes="192x192" href="./icon-192.png" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Gestor Pro" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: { 50: '#f0f9ff', 500: '#0ea5e9', 600: '#0284c7', 700: '#0369a1' }
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    body { font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col selection:bg-sky-500 selection:text-white">
+
+  <!-- Top Navigation & Controls -->
+  <header class="sticky top-0 z-30 bg-slate-900/95 backdrop-blur border-b border-slate-800 px-4 py-3 shadow-lg">
+    <div class="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-3 min-w-0">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-sky-500 to-blue-700 flex items-center justify-center font-bold text-white shadow">
+          GP
+        </div>
+        <div class="min-w-0">
+          <div class="flex items-center gap-2">
+            <h1 id="storeNameHeading" class="font-bold text-base sm:text-lg text-white truncate">Gestor Pro</h1>
+            <span id="storeBadge" class="text-[11px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-medium">
+              Catálogo
+            </span>
+          </div>
+          <p id="storeMetaSub" class="text-xs text-slate-400 truncate">Tienda Oficial • Pedidos en Línea</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2 flex-wrap">
+        <select id="langSelect" aria-label="Idioma" class="bg-slate-800 border border-slate-700 text-slate-200 text-xs rounded-lg px-2.5 py-2 focus:outline-none focus:border-sky-500">
+          <option value="es">🇪🇸 Español</option>
+          <option value="en">🇺🇸 English</option>
+          <option value="pt">🇧🇷 Português</option>
+          <option value="hi">🇮🇳 हिन्दी</option>
+          <option value="id">🇮🇩 Bahasa Indonesia</option>
+          <option value="ru">🇷🇺 Русский</option>
+          <option value="ar">🇸🇦 العربية</option>
+          <option value="fr">🇫🇷 Français</option>
+          <option value="de">🇩🇪 Deutsch</option>
+          <option value="ja">🇯🇵 日本語</option>
+        </select>
+
+        <a id="backToPanelBtn" href="./index.html" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-medium px-3 py-2 rounded-lg transition">
+          Panel
+        </a>
+
+        <button id="openCartBtn" type="button" class="relative bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold px-3.5 py-2 rounded-lg shadow transition flex items-center gap-2">
+          <span id="cartBtnLabel">Carrito</span>
+          <span id="cartCountBadge" class="bg-white text-sky-900 font-bold text-[11px] px-1.5 py-0.5 rounded-full">0</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Search & Category Filter -->
+    <div class="max-w-6xl mx-auto mt-3 flex flex-col sm:flex-row gap-2.5">
+      <div class="relative flex-1">
+        <input id="searchInput" type="text" placeholder="Buscar productos..." class="w-full bg-slate-950/80 border border-slate-800 focus:border-sky-500 rounded-xl px-3.5 py-2 text-sm text-white placeholder-slate-500 focus:outline-none" />
+      </div>
+      <div id="categoryPills" class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-0.5"></div>
+    </div>
+  </header>
+
+  <!-- Sync & Store Status Banner -->
+  <div class="max-w-6xl w-full mx-auto px-4 pt-3">
+    <div id="syncStatusBar" class="flex flex-wrap items-center justify-between gap-2 text-xs bg-slate-900/80 border border-slate-800/90 rounded-xl px-3.5 py-2 text-slate-300">
+      <div class="flex items-center gap-2">
+        <span id="syncDot" class="w-2 h-2 rounded-full bg-amber-400"></span>
+        <span id="syncStatusText">Sincronizando catálogo...</span>
+      </div>
+      <div class="flex items-center gap-3 text-slate-400">
+        <span id="syncCodeDisplay" class="font-mono text-[11px] text-sky-400"></span>
+        <button id="refreshCatalogBtn" type="button" class="text-sky-400 hover:text-sky-300 underline text-xs">Actualizar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Products Grid -->
+  <main class="max-w-6xl w-full mx-auto px-4 py-5 flex-1">
+    <div id="productsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"></div>
+
+    <div id="emptyState" class="hidden text-center py-16 bg-slate-900/50 border border-slate-800/80 rounded-2xl mt-4">
+      <p id="emptyStateTitle" class="text-base font-semibold text-slate-300">No hay productos disponibles</p>
+      <p id="emptyStateDesc" class="text-xs text-slate-500 mt-1">Verifica el código de negocio o intenta otra búsqueda.</p>
+    </div>
+  </main>
+
+  <!-- Cart & Checkout Drawer / Modal -->
+  <div id="cartModal" class="fixed inset-0 z-50 hidden bg-black/75 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="bg-slate-900 border border-slate-800 w-full max-w-xl rounded-t-3xl sm:rounded-2xl max-h-[92vh] flex flex-col shadow-2xl overflow-hidden">
+      <div class="px-5 py-4 border-b border-slate-800 flex items-center justify-between">
+        <h2 id="modalCartTitle" class="font-bold text-base text-white">Tu Pedido</h2>
+        <button id="closeCartBtn" type="button" class="text-slate-400 hover:text-white text-xl leading-none px-2">&times;</button>
+      </div>
+
+      <div class="p-5 overflow-y-auto space-y-4 flex-1">
+        <div id="cartItemsList" class="space-y-2.5"></div>
+
+        <div class="border-t border-slate-800 pt-4 space-y-3">
+          <h3 id="checkoutSectionTitle" class="text-xs font-bold uppercase tracking-wider text-sky-400">Datos del Cliente y Entrega</h3>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label id="lblClientName" class="block text-xs text-slate-400 mb-1">Nombre completo *</label>
+              <input id="clientName" type="text" required class="w-full bg-slate-950 border border-slate-800 focus:border-sky-500 rounded-xl px-3 py-2 text-sm text-white focus:outline-none" placeholder="Ej. María Pérez" />
+            </div>
+            <div>
+              <label id="lblClientPhone" class="block text-xs text-slate-400 mb-1">Teléfono / WhatsApp *</label>
+              <input id="clientPhone" type="tel" required class="w-full bg-slate-950 border border-slate-800 focus:border-sky-500 rounded-xl px-3 py-2 text-sm text-white focus:outline-none" placeholder="Ej. +58 412-0000000" />
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label id="lblDeliveryType" class="block text-xs text-slate-400 mb-1">Modalidad de entrega</label>
+              <select id="deliveryType" class="w-full bg-slate-950 border border-slate-800 focus:border-sky-500 rounded-xl px-3 py-2 text-sm text-white focus:outline-none">
+                <option value="Retiro en local">Retiro en local</option>
+                <option value="Delivery">Delivery</option>
+              </select>
+            </div>
+            <div>
+              <label id="lblPaymentMethod" class="block text-xs text-slate-400 mb-1">Método de pago</label>
+              <select id="paymentMethod" class="w-full bg-slate-950 border border-slate-800 focus:border-sky-500 rounded-xl px-3 py-2 text-sm text-white focus:outline-none">
+                <option value="Efectivo">Efectivo</option>
+                <option value="Transferencia / Pago Móvil">Transferencia / Pago Móvil</option>
+                <option value="Punto / Tarjeta">Punto / Tarjeta</option>
+                <option value="Por confirmar">Por confirmar</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label id="lblAddress" class="block text-xs text-slate-400 mb-1">Dirección o punto de referencia</label>
+            <input id="deliveryAddress" type="text" class="w-full bg-slate-950 border border-slate-800 focus:border-sky-500 rounded-xl px-3 py-2 text-sm text-white focus:outline-none" placeholder="Sector, calle, edificio o referencia..." />
+          </div>
+
+          <div>
+            <label id="lblReference" class="block text-xs text-slate-400 mb-1">Referencia de pago o nota adicional</label>
+            <input id="paymentReference" type="text" class="w-full bg-slate-950 border border-slate-800 focus:border-sky-500 rounded-xl px-3 py-2 text-sm text-white focus:outline-none" placeholder="Opcional: Nro. referencia o instrucciones" />
+          </div>
+        </div>
+      </div>
+
+      <div class="px-5 py-4 bg-slate-950/90 border-t border-slate-800 space-y-3">
+        <div class="flex items-center justify-between text-sm">
+          <span id="cartTotalLabel" class="text-slate-400 font-medium">Total a pagar</span>
+          <span id="cartTotalAmount" class="text-xl font-extrabold text-emerald-400">$0.00</span>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+          <button id="submitOrderBtn" type="button" class="w-full bg-sky-600 hover:bg-sky-500 text-white font-semibold py-2.5 px-4 rounded-xl text-sm transition shadow">
+            Enviar Pedido al Sistema
+          </button>
+          <button id="submitWhatsappBtn" type="button" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-2.5 px-4 rounded-xl text-sm transition shadow">
+            Registrar y Enviar por WhatsApp
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confirmation Toast / Banner -->
+  <div id="toastBanner" class="fixed bottom-5 right-5 z-[60] hidden max-w-sm bg-slate-900 border border-emerald-500/50 text-white px-4 py-3 rounded-2xl shadow-2xl text-xs"></div>
+
+  <!-- Footer with Mandatory Attribution -->
+  <footer class="border-t border-slate-900 bg-slate-950 py-4 px-4 text-center text-xs text-slate-500">
+    <p id="footerAuthorLine">Gestor Pro — Desarrollado por Joelvy José Salazar Vargas (C.I. 30.022.434)</p>
+    <p id="footerCopyrightLine" class="mt-0.5">© 2026 Gestor Pro. Todos los derechos reservados. Joelvy José Salazar Vargas (C.I. 30.022.434)</p>
+  </footer>
+
+  <!-- Firebase SDK (Compat for seamless integration & Firestore sync) -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+  <script>
+    (function () {
+      "use strict";
+
+      const AUTHOR_INFO = {
+        author: "Joelvy José Salazar Vargas (C.I. 30.022.434)",
+        copyright: "© 2026 Gestor Pro. Todos los derechos reservados. Joelvy José Salazar Vargas (C.I. 30.022.434)"
+      };
+
+      // Completa apiKey y appId de tu consola Firebase para activar sincronización en nube
+      const FIREBASE_CONFIG = {
+        apiKey: "",
+        authDomain: "gestorpro-sync-8b047.firebaseapp.com",
+        projectId: "gestorpro-sync-8b047",
+        storageBucket: "gestorpro-sync-8b047.appspot.com",
+        messagingSenderId: "644496640474",
+        appId: ""
+      };
+
+      const STORAGE_KEYS = {
+        DB: "gestor_pro_db_v1",
+        SETTINGS: "gestor_pro_settings_v1",
+        LANG: "gestor_pro_lang_v1",
+        CART_PREFIX: "gestor_pro_catalog_cart_"
+      };
+
+      const TRANSLATIONS = {
+        es: {
+          pageTitle: "Catálogo Digital — Gestor Pro",
+          badgeCatalog: "Catálogo",
+          storeSub: "Tienda Oficial • Pedidos en Línea",
+          panelBtn: "Panel",
+          cartBtn: "Carrito",
+          searchPlaceholder: "Buscar productos...",
+          allCategories: "Todos",
+          syncing: "Sincronizando catálogo...",
+          syncedLocal: "Catálogo cargado desde almacenamiento local",
+          syncedCloud: "Catálogo sincronizado en tiempo real con Firestore",
+          refreshBtn: "Actualizar",
+          stockLabel: "Stock",
+          outOfStock: "Agotado",
+          addToCart: "Agregar",
+          emptyTitle: "No hay productos disponibles",
+          emptyDesc: "Verifica el código de negocio o intenta otra búsqueda.",
+          modalCartTitle: "Tu Pedido",
+          emptyCart: "Tu carrito está vacío.",
+          checkoutTitle: "Datos del Cliente y Entrega",
+          lblName: "Nombre completo *",
+          lblPhone: "Teléfono / WhatsApp *",
+          lblDelivery: "Modalidad de entrega",
+          pickupOption: "Retiro en local",
+          deliveryOption: "Delivery",
+          lblPayment: "Método de pago",
+          cashOption: "Efectivo",
+          transferOption: "Transferencia / Pago Móvil",
+          cardOption: "Punto / Tarjeta",
+          pendingPayOption: "Por confirmar",
+          lblAddress: "Dirección o punto de referencia",
+          lblReference: "Referencia de pago o nota adicional",
+          totalLabel: "Total a pagar",
+          submitOrder: "Enviar Pedido al Sistema",
+          submitWhatsapp: "Registrar y Enviar por WhatsApp",
+          errEmptyCart: "Agrega al menos un producto al carrito.",
+          errClientInfo: "Completa tu nombre y teléfono para continuar.",
+          orderSuccess: "Pedido registrado correctamente. El negocio lo recibirá en su panel.",
+          footerAuthor: "Gestor Pro — Desarrollado por Joelvy José Salazar Vargas (C.I. 30.022.434)",
+          footerCopy: "© 2026 Gestor Pro. Todos los derechos reservados. Joelvy José Salazar Vargas (C.I. 30.022.434)"
+        },
+        en: {
+          pageTitle: "Digital Catalog — Gestor Pro",
+          badgeCatalog: "Catalog",
+          storeSub: "Official Store • Online Orders",
+          panelBtn: "Dashboard",
+          cartBtn: "Cart",
+          searchPlaceholder: "Search products...",
+          allCategories: "All",
+          syncing: "Syncing catalog...",
+          syncedLocal: "Catalog loaded from local storage",
+          syncedCloud: "Catalog synced in real time with Firestore",
+          refreshBtn: "Refresh",
+          stockLabel: "Stock",
+          outOfStock: "Out of stock",
+          addToCart: "Add",
+          emptyTitle: "No products available",
+          emptyDesc: "Check the business code or try another search.",
+          modalCartTitle: "Your Order",
+          emptyCart: "Your cart is empty.",
+          checkoutTitle: "Customer & Delivery Details",
+          lblName: "Full name *",
+          lblPhone: "Phone / WhatsApp *",
+          lblDelivery: "Delivery method",
+          pickupOption: "Store pickup",
+          deliveryOption: "Delivery",
+          lblPayment: "Payment method",
+          cashOption: "Cash",
+          transferOption: "Bank Transfer / Mobile Pay",
+          cardOption: "Card / POS",
+          pendingPayOption: "To be confirmed",
+          lblAddress: "Address or landmark",
+          lblReference: "Payment reference or extra note",
+          totalLabel: "Total due",
+          submitOrder: "Send Order to System",
+          submitWhatsapp: "Save & Send via WhatsApp",
+          errEmptyCart: "Add at least one product to the cart.",
+          errClientInfo: "Please enter your name and phone number.",
+          orderSuccess: "Order submitted successfully. The store will receive it in its panel.",
+          footerAuthor: "Gestor Pro — Developed by Joelvy José Salazar Vargas (C.I. 30.022.434)",
+          footerCopy: "© 2026 Gestor Pro. All rights reserved. Joelvy José Salazar Vargas (C.I. 30.022.434)"
+        },
+        pt: {
+          pageTitle: "Catálogo Digital — Gestor Pro",
+          badgeCatalog: "Catálogo",
+          storeSub: "Loja Oficial • Pedidos Online",
+          panelBtn: "Painel",
+          cartBtn: "Carrinho",
+          searchPlaceholder: "Buscar produtos...",
+          allCategories: "Todos",
+          syncing: "Sincronizando catálogo...",
+          syncedLocal: "Catálogo carregado do armazenamento local",
+          syncedCloud: "Catálogo sincronizado em tempo real com o Firestore",
+          refreshBtn: "Atualizar",
+          stockLabel: "Estoque",
+          outOfStock: "Esgotado",
+          addToCart: "Adicionar",
+          emptyTitle: "Nenhum produto disponível",
+          emptyDesc: "Verifique o código da empresa ou tente outra busca.",
+          modalCartTitle: "Seu Pedido",
+          emptyCart: "Seu carrinho está vazio.",
+          checkoutTitle: "Dados do Cliente e Entrega",
+          lblName: "Nome completo *",
+          lblPhone: "Telefone / WhatsApp *",
+          lblDelivery: "Modalidade de entrega",
+          pickupOption: "Retirada na loja",
+          deliveryOption: "Entrega",
+          lblPayment: "Forma de pagamento",
+          cashOption: "Dinheiro",
+          transferOption: "Transferência / Pix",
+          cardOption: "Cartão / Maquininha",
+          pendingPayOption: "A confirmar",
+          lblAddress: "Endereço ou ponto de referência",
+          lblReference: "Referência de pagamento ou observação",
+          totalLabel: "Total a pagar",
+          submitOrder: "Enviar Pedido ao Sistema",
+          submitWhatsapp: "Registrar e Enviar pelo WhatsApp",
+          errEmptyCart: "Adicione pelo menos um produto ao carrinho.",
+          errClientInfo: "Preencha seu nome e telefone para continuar.",
+          orderSuccess: "Pedido registrado com sucesso. A loja receberá no painel.",
+          footerAuthor: "Gestor Pro — Desenvolvido por Joelvy José Salazar Vargas (C.I. 30.022.434)",
+          footerCopy: "© 2026 Gestor Pro. Todos os direitos reservados. Joelvy José Salazar Vargas (C.I. 30.022.434)"
+        },
+        hi: {
+          pageTitle: "डिजिटल कैटलॉग — Gestor Pro",
+          badgeCatalog: "कैटलॉग",
+          storeSub: "आधिकारिक स्टोर • ऑनलाइन ऑर्डर",
+          panelBtn: "डैशबोर्ड",
+          cartBtn: "कार्ट",
+          searchPlaceholder: "उत्पाद खोजें...",
+          allCategories: "सभी",
+          syncing: "कैटलॉग सिंक हो रहा है...",
+          syncedLocal: "कैटलॉग स्थानीय संग्रहण से लोड हुआ",
+          syncedCloud: "कैटलॉग Firestore के साथ लाइव सिंक है",
+          refreshBtn: "ताज़ा करें",
+          stockLabel: "स्टॉक",
+          outOfStock: "स्टॉक समाप्त",
+          addToCart: "जोड़ें",
+          emptyTitle: "कोई उत्पाद उपलब्ध नहीं है",
+          emptyDesc: "बिज़नेस कोड जांचें या कोई अन्य खोज आज़माएं।",
+          modalCartTitle: "आपका ऑर्डर",
+          emptyCart: "आपका कार्ट खाली है।",
+          checkoutTitle: "ग्राहक और डिलीवरी विवरण",
+          lblName: "पूरा नाम *",
+          lblPhone: "फ़ोन / व्हाट्सएप *",
+          lblDelivery: "डिलीवरी का प्रकार",
+          pickupOption: "स्टोर से पिकअप",
+          deliveryOption: "डिलीवरी",
+          lblPayment: "भुगतान का तरीका",
+          cashOption: "नकद",
+          transferOption: "ट्रांसफ़र / मोबाइल पे",
+          cardOption: "कार्ड / पीओएस",
+          pendingPayOption: "पुष्टि बाकी",
+          lblAddress: "पता या पहचान चिह्न",
+          lblReference: "भुगतान संदर्भ या अतिरिक्त नोट",
+          totalLabel: "कुल देय राशि",
+          submitOrder: "सिस्टम में ऑर्डर भेजें",
+          submitWhatsapp: "सहेजें और WhatsApp पर भेजें",
+          errEmptyCart: "कार्ट में कम से कम एक उत्पाद जोड़ें।",
+          errClientInfo: "कृपया अपना नाम और फ़ोन नंबर दर्ज करें।",
+          orderSuccess: "ऑर्डर सफलतापूर्वक दर्ज किया गया। स्टोर को पैनल में मिल जाएगा।",
+          footerAuthor: "Gestor Pro — Joelvy José Salazar Vargas (C.I. 30.022.434) द्वारा विकसित",
+          footerCopy: "© 2026 Gestor Pro. सर्वाधिकार सुरक्षित। Joelvy José Salazar Vargas (C.I. 30.022.434)"
+        },
+        id: {
+          pageTitle: "Katalog Digital — Gestor Pro",
+          badgeCatalog: "Katalog",
+          storeSub: "Toko Resmi • Pesanan Online",
+          panelBtn: "Panel",
+          cartBtn: "Keranjang",
+          searchPlaceholder: "Cari produk...",
+          allCategories: "Semua",
+          syncing: "Menyinkronkan katalog...",
+          syncedLocal: "Katalog dimuat dari penyimpanan lokal",
+          syncedCloud: "Katalog tersinkronisasi real-time dengan Firestore",
+          refreshBtn: "Segarkan",
+          stockLabel: "Stok",
+          outOfStock: "Habis",
+          addToCart: "Tambah",
+          emptyTitle: "Tidak ada produk tersedia",
+          emptyDesc: "Periksa kode bisnis atau coba pencarian lain.",
+          modalCartTitle: "Pesanan Anda",
+          emptyCart: "Keranjang Anda kosong.",
+          checkoutTitle: "Data Pelanggan & Pengiriman",
+          lblName: "Nama lengkap *",
+          lblPhone: "Telepon / WhatsApp *",
+          lblDelivery: "Metode pengiriman",
+          pickupOption: "Ambil di toko",
+          deliveryOption: "Pengiriman",
+          lblPayment: "Metode pembayaran",
+          cashOption: "Tunai",
+          transferOption: "Transfer / Pembayaran Seluler",
+          cardOption: "Kartu / EDC",
+          pendingPayOption: "Menunggu konfirmasi",
+          lblAddress: "Alamat atau patokan",
+          lblReference: "Referensi pembayaran atau catatan",
+          totalLabel: "Total bayar",
+          submitOrder: "Kirim Pesanan ke Sistem",
+          submitWhatsapp: "Simpan & Kirim via WhatsApp",
+          errEmptyCart: "Tambahkan minimal satu produk ke keranjang.",
+          errClientInfo: "Lengkapi nama dan nomor telepon Anda.",
+          orderSuccess: "Pesanan berhasil dikirim. Toko akan menerimanya di panel.",
+          footerAuthor: "Gestor Pro — Dikembangkan oleh Joelvy José Salazar Vargas (C.I. 30.022.434)",
+          footerCopy: "© 2026 Gestor Pro. Hak cipta dilindungi. Joelvy José Salazar Vargas (C.I. 30.022.434)"
+        },
+        ru: {
+          pageTitle: "Цифровой каталог — Gestor Pro",
+          badgeCatalog: "Каталог",
+          storeSub: "Официальный магазин • Онлайн-заказы",
+          panelBtn: "Панель",
+          cartBtn: "Корзина",
+          searchPlaceholder: "Поиск товаров...",
+          allCategories: "Все",
+          syncing: "Синхронизация каталога...",
+          syncedLocal: "Каталог загружен из локального хранилища",
+          syncedCloud: "Каталог синхронизирован с Firestore в реальном времени",
+          refreshBtn: "Обновить",
+          stockLabel: "Остаток",
+          outOfStock: "Нет в наличии",
+          addToCart: "Добавить",
+          emptyTitle: "Нет доступных товаров",
+          emptyDesc: "Проверьте код бизнеса или измените запрос.",
+          modalCartTitle: "Ваш заказ",
+          emptyCart: "Ваша корзина пуста.",
+          checkoutTitle: "Данные клиента и доставка",
+          lblName: "Полное имя *",
+          lblPhone: "Телефон / WhatsApp *",
+          lblDelivery: "Способ получения",
+          pickupOption: "Самовывоз",
+          deliveryOption: "Доставка",
+          lblPayment: "Способ оплаты",
+          cashOption: "Наличные",
+          transferOption: "Перевод / Мобильный платёж",
+          cardOption: "Карта / Терминал",
+          pendingPayOption: "Уточняется",
+          lblAddress: "Адрес или ориентир",
+          lblReference: "Номер перевода или примечание",
+          totalLabel: "Итого к оплате",
+          submitOrder: "Отправить заказ в систему",
+          submitWhatsapp: "Сохранить и отправить в WhatsApp",
+          errEmptyCart: "Добавьте хотя бы один товар в корзину.",
+          errClientInfo: "Укажите имя и номер телефона.",
+          orderSuccess: "Заказ отправлен. Магазин увидит его в панели.",
+          footerAuthor: "Gestor Pro — Разработано: Joelvy José Salazar Vargas (C.I. 30.022.434)",
+          footerCopy: "© 2026 Gestor Pro. Все права защищены. Joelvy José Salazar Vargas (C.I. 30.022.434)"
+        },
+        ar: {
+          pageTitle: "الكتالوج الرقمي — Gestor Pro",
+          badgeCatalog: "الكتالوج",
+          storeSub: "المتجر الرسمي • طلبات إلكترونية",
+          panelBtn: "اللوحة",
+          cartBtn: "السلة",
+          searchPlaceholder: "ابحث عن المنتجات...",
+          allCategories: "الكل",
+          syncing: "جارٍ مزامنة الكتالوج...",
+          syncedLocal: "تم تحميل الكتالوج من التخزين المحلي",
+          syncedCloud: "الكتالوج متزامن لحظياً مع Firestore",
+          refreshBtn: "تحديث",
+          stockLabel: "المخزون",
+          outOfStock: "نفد المخزون",
+          addToCart: "إضافة",
+          emptyTitle: "لا توجد منتجات متاحة",
+          emptyDesc: "تحقق من رمز النشاط التجاري أو جرّب بحثاً آخر.",
+          modalCartTitle: "طلبك",
+          emptyCart: "سلتك فارغة.",
+          checkoutTitle: "بيانات العميل والتوصيل",
+          lblName: "الاسم الكامل *",
+          lblPhone: "الهاتف / واتساب *",
+          lblDelivery: "طريقة الاستلام",
+          pickupOption: "استلام من المتجر",
+          deliveryOption: "توصيل",
+          lblPayment: "طريقة الدفع",
+          cashOption: "نقداً",
+          transferOption: "تحويل / دفع إلكتروني",
+          cardOption: "بطاقة / نقطة بيع",
+          pendingPayOption: "يُؤكد لاحقاً",
+          lblAddress: "العنوان أو أقرب معلم",
+          lblReference: "مرجع الدفع أو ملاحظة إضافية",
+          totalLabel: "الإجمالي المستحق",
+          submitOrder: "إرسال الطلب إلى النظام",
+          submitWhatsapp: "حفظ وإرسال عبر واتساب",
+          errEmptyCart: "أضف منتجاً واحداً على الأقل إلى السلة.",
+          errClientInfo: "يرجى إدخال الاسم ورقم الهاتف.",
+          orderSuccess: "تم إرسال الطلب بنجاح وسيظهر في لوحة المتجر.",
+          footerAuthor: "Gestor Pro — تطوير Joelvy José Salazar Vargas (C.I. 30.022.434)",
+          footerCopy: "© 2026 Gestor Pro. جميع الحقوق محفوظة. Joelvy José Salazar Vargas (C.I. 30.022.434)"
+        },
+        fr: {
+          pageTitle: "Catalogue Numérique — Gestor Pro",
+          badgeCatalog: "Catalogue",
+          storeSub: "Boutique Officielle • Commandes en Ligne",
+          panelBtn: "Tableau",
+          cartBtn: "Panier",
+          searchPlaceholder: "Rechercher des produits...",
+          allCategories: "Tous",
+          syncing: "Synchronisation du catalogue...",
+          syncedLocal: "Catalogue chargé depuis le stockage local",
+          syncedCloud: "Catalogue synchronisé en temps réel avec Firestore",
+          refreshBtn: "Actualiser",
+          stockLabel: "Stock",
+          outOfStock: "Rupture de stock",
+          addToCart: "Ajouter",
+          emptyTitle: "Aucun produit disponible",
+          emptyDesc: "Vérifiez le code boutique ou essayez une autre recherche.",
+          modalCartTitle: "Votre Commande",
+          emptyCart: "Votre panier est vide.",
+          checkoutTitle: "Coordonnées Client & Livraison",
+          lblName: "Nom complet *",
+          lblPhone: "Téléphone / WhatsApp *",
+          lblDelivery: "Mode de livraison",
+          pickupOption: "Retrait en boutique",
+          deliveryOption: "Livraison",
+          lblPayment: "Moyen de paiement",
+          cashOption: "Espèces",
+          transferOption: "Virement / Paiement Mobile",
+          cardOption: "Carte / TPE",
+          pendingPayOption: "À confirmer",
+          lblAddress: "Adresse ou point de repère",
+          lblReference: "Référence de paiement ou note",
+          totalLabel: "Total à payer",
+          submitOrder: "Envoyer la Commande au Système",
+          submitWhatsapp: "Enregistrer et Envoyer via WhatsApp",
+          errEmptyCart: "Ajoutez au moins un produit au panier.",
+          errClientInfo: "Veuillez saisir votre nom et votre téléphone.",
+          orderSuccess: "Commande enregistrée. La boutique la recevra dans son panneau.",
+          footerAuthor: "Gestor Pro — Développé par Joelvy José Salazar Vargas (C.I. 30.022.434)",
+          footerCopy: "© 2026 Gestor Pro. Tous droits réservés. Joelvy José Salazar Vargas (C.I. 30.022.434)"
+        },
+        de: {
+          pageTitle: "Digitaler Katalog — Gestor Pro",
+          badgeCatalog: "Katalog",
+          storeSub: "Offizieller Shop • Online-Bestellungen",
+          panelBtn: "Übersicht",
+          cartBtn: "Warenkorb",
+          searchPlaceholder: "Produkte suchen...",
+          allCategories: "Alle",
+          syncing: "Katalog wird synchronisiert...",
+          syncedLocal: "Katalog aus lokalem Speicher geladen",
+          syncedCloud: "Katalog in Echtzeit mit Firestore synchronisiert",
+          refreshBtn: "Aktualisieren",
+          stockLabel: "Bestand",
+          outOfStock: "Ausverkauft",
+          addToCart: "Hinzufügen",
+          emptyTitle: "Keine Produkte verfügbar",
+          emptyDesc: "Geschäftscode prüfen oder anders suchen.",
+          modalCartTitle: "Ihre Bestellung",
+          emptyCart: "Ihr Warenkorb ist leer.",
+          checkoutTitle: "Kunden- & Lieferdaten",
+          lblName: "Vollständiger Name *",
+          lblPhone: "Telefon / WhatsApp *",
+          lblDelivery: "Lieferart",
+          pickupOption: "Abholung vor Ort",
+          deliveryOption: "Lieferung",
+          lblPayment: "Zahlungsart",
+          cashOption: "Barzahlung",
+          transferOption: "Überweisung / Mobile Pay",
+          cardOption: "Karte / Terminal",
+          pendingPayOption: "Noch zu bestätigen",
+          lblAddress: "Adresse oder Wegbeschreibung",
+          lblReference: "Zahlungsreferenz oder Hinweis",
+          totalLabel: "Gesamtbetrag",
+          submitOrder: "Bestellung an System senden",
+          submitWhatsapp: "Speichern & per WhatsApp senden",
+          errEmptyCart: "Fügen Sie mindestens ein Produkt zum Warenkorb hinzu.",
+          errClientInfo: "Bitte Namen und Telefonnummer eingeben.",
+          orderSuccess: "Bestellung erfasst. Das Geschäft erhält sie im Panel.",
+          footerAuthor: "Gestor Pro — Entwickelt von Joelvy José Salazar Vargas (C.I. 30.022.434)",
+          footerCopy: "© 2026 Gestor Pro. Alle Rechte vorbehalten. Joelvy José Salazar Vargas (C.I. 30.022.434)"
+        },
+        ja: {
+          pageTitle: "デジタルカタログ — Gestor Pro",
+          badgeCatalog: "カタログ",
+          storeSub: "公式ストア • オンライン注文",
+          panelBtn: "管理画面",
+          cartBtn: "カート",
+          searchPlaceholder: "商品を検索...",
+          allCategories: "すべて",
+          syncing: "カタログを同期中...",
+          syncedLocal: "ローカルストレージからカタログを読み込みました",
+          syncedCloud: "Firestoreとリアルタイム同期中",
+          refreshBtn: "更新",
+          stockLabel: "在庫",
+          outOfStock: "在庫切れ",
+          addToCart: "追加",
+          emptyTitle: "利用可能な商品がありません",
+          emptyDesc: "店舗コードを確認するか、別の検索語をお試しください。",
+          modalCartTitle: "ご注文内容",
+          emptyCart: "カートは空です。",
+          checkoutTitle: "お客様情報・受取方法",
+          lblName: "お名前 *",
+          lblPhone: "電話番号 / WhatsApp *",
+          lblDelivery: "受取方法",
+          pickupOption: "店頭受取",
+          deliveryOption: "配達",
+          lblPayment: "お支払い方法",
+          cashOption: "現金",
+          transferOption: "振込 / モバイル決済",
+          cardOption: "カード / 端末決済",
+          pendingPayOption: "後で確認",
+          lblAddress: "住所または目印",
+          lblReference: "決済参照番号またはメモ",
+          totalLabel: "お支払い合計",
+          submitOrder: "システムに注文を送信",
+          submitWhatsapp: "保存してWhatsAppで送信",
+          errEmptyCart: "カートに商品を1つ以上追加してください。",
+          errClientInfo: "お名前と電話番号を入力してください。",
+          orderSuccess: "注文が送信されました。管理画面に反映されます。",
+          footerAuthor: "Gestor Pro — 開発: Joelvy José Salazar Vargas (C.I. 30.022.434)",
+          footerCopy: "© 2026 Gestor Pro. All rights reserved. Joelvy José Salazar Vargas (C.I. 30.022.434)"
+        }
+      };
+
+      const urlParams = new URLSearchParams(window.location.search);
+      const businessParam = (urlParams.get("neg") || "").trim();
+
+      let currentLang = localStorage.getItem(STORAGE_KEYS.LANG) || "es";
+      let settings = {
+        businessName: "Gestor Pro",
+        businessPhone: "",
+        businessAddress: "",
+        currencySymbol: "$",
+        syncCode: businessParam || "",
+        isPro: false,
+        proUntil: 0
+      };
+      let inventory = [];
+      let cart = [];
+      let selectedCategory = "__ALL__";
+      let searchQuery = "";
+      let firestoreDb = null;
+      let unsubscribeCatalog = null;
+
+      function t(key) {
+        const pack = TRANSLATIONS[currentLang] || TRANSLATIONS.es;
+        return pack[key] || TRANSLATIONS.es[key] || key;
+      }
+
+      function getCartKey() {
+        const code = settings.syncCode || businessParam || "default";
+        return `${STORAGE_KEYS.CART_PREFIX}${code}`;
+      }
+
+      function loadCart() {
+        try {
+          const raw = localStorage.getItem(getCartKey());
+          cart = raw ? JSON.parse(raw) : [];
+          if (!Array.isArray(cart)) cart = [];
+        } catch (_e) {
+          cart = [];
+        }
+      }
+
+      function saveCart() {
+        try {
+          localStorage.setItem(getCartKey(), JSON.stringify(cart));
+        } catch (_e) {}
+      }
+
+      function showToast(msg, isError = false) {
+        const el = document.getElementById("toastBanner");
+        if (!el) return;
+        el.textContent = msg;
+        el.className = `fixed bottom-5 right-5 z-[60] max-w-sm px-4 py-3 rounded-2xl shadow-2xl text-xs border ${
+          isError
+            ? "bg-rose-950/95 border-rose-500/60 text-rose-100"
+            : "bg-slate-900/95 border-emerald-500/60 text-emerald-100"
+        }`;
+        el.classList.remove("hidden");
+        clearTimeout(el._timer);
+        el._timer = setTimeout(() => el.classList.add("hidden"), 4000);
+      }
+
+      function formatMoney(amount) {
+        const num = Number(amount || 0);
+        const sym = settings.currencySymbol || "$";
+        return `${sym}${num.toFixed(2)}`;
+      }
+
+      function applyLanguage() {
+        document.documentElement.lang = currentLang;
+        document.documentElement.dir = currentLang === "ar" ? "rtl" : "ltr";
+        document.title = t("pageTitle");
+
+        const langSelect = document.getElementById("langSelect");
+        if (langSelect) langSelect.value = currentLang;
+
+        const setText = (id, val) => {
+          const el = document.getElementById(id);
+          if (el) el.textContent = val;
+        };
+        const setPlaceholder = (id, val) => {
+          const el = document.getElementById(id);
+          if (el) el.placeholder = val;
+        };
+
+        setText("storeBadge", t("badgeCatalog"));
+        setText("backToPanelBtn", t("panelBtn"));
+        setText("cartBtnLabel", t("cartBtn"));
+        setPlaceholder("searchInput", t("searchPlaceholder"));
+        setText("refreshCatalogBtn", t("refreshBtn"));
+        setText("emptyStateTitle", t("emptyTitle"));
+        setText("emptyStateDesc", t("emptyDesc"));
+        setText("modalCartTitle", t("modalCartTitle"));
+        setText("checkoutSectionTitle", t("checkoutTitle"));
+        setText("lblClientName", t("lblName"));
+        setText("lblClientPhone", t("lblPhone"));
+        setText("lblDeliveryType", t("lblDelivery"));
+        setText("lblPaymentMethod", t("lblPayment"));
+        setText("lblAddress", t("lblAddress"));
+        setText("lblReference", t("lblReference"));
+        setText("cartTotalLabel", t("totalLabel"));
+        setText("submitOrderBtn", t("submitOrder"));
+        setText("submitWhatsappBtn", t("submitWhatsapp"));
+        setText("footerAuthorLine", t("footerAuthor"));
+        setText("footerCopyrightLine", t("footerCopy"));
+
+        const deliverySelect = document.getElementById("deliveryType");
+        if (deliverySelect && deliverySelect.options.length >= 2) {
+          deliverySelect.options[0].text = t("pickupOption");
+          deliverySelect.options[1].text = t("deliveryOption");
+        }
+
+        const paymentSelect = document.getElementById("paymentMethod");
+        if (paymentSelect && paymentSelect.options.length >= 4) {
+          paymentSelect.options[0].text = t("cashOption");
+          paymentSelect.options[1].text = t("transferOption");
+          paymentSelect.options[2].text = t("cardOption");
+          paymentSelect.options[3].text = t("pendingPayOption");
+        }
+
+        renderStoreHeader();
+        renderCategories();
+        renderProducts();
+        renderCart();
+      }
+
+      function renderStoreHeader() {
+        const nameEl = document.getElementById("storeNameHeading");
+        const subEl = document.getElementById("storeMetaSub");
+        const codeEl = document.getElementById("syncCodeDisplay");
+        if (nameEl) nameEl.textContent = settings.businessName || "Gestor Pro";
+        if (subEl) {
+          const parts = [t("storeSub")];
+          if (settings.businessAddress) parts.push(settings.businessAddress);
+          subEl.textContent = parts.join(" • ");
+        }
+        if (codeEl) {
+          codeEl.textContent = settings.syncCode ? `ID: ${settings.syncCode}` : "";
+        }
+      }
+
+      function setSyncBanner(mode, message) {
+        const dot = document.getElementById("syncDot");
+        const txt = document.getElementById("syncStatusText");
+        if (txt) txt.textContent = message;
+        if (dot) {
+          dot.className = `w-2 h-2 rounded-full ${
+            mode === "cloud" ? "bg-emerald-400" : mode === "local" ? "bg-sky-400" : "bg-amber-400"
+          }`;
+        }
+      }
+
+      function loadFromLocalStorage() {
+        try {
+          const rawSettings = localStorage.getItem(STORAGE_KEYS.SETTINGS);
+          if (rawSettings) {
+            const parsedSettings = JSON.parse(rawSettings);
+            settings = {
+              ...settings,
+              ...parsedSettings,
+              syncCode: businessParam || parsedSettings.syncCode || ""
+            };
+          }
+          const rawDb = localStorage.getItem(STORAGE_KEYS.DB);
+          if (rawDb) {
+            const parsedDb = JSON.parse(rawDb);
+            if (Array.isArray(parsedDb.inventory)) {
+              inventory = parsedDb.inventory.slice();
+            }
+          }
+          renderStoreHeader();
+          setSyncBanner("local", t("syncedLocal"));
+        } catch (_e) {
+          setSyncBanner("local", t("syncedLocal"));
+        }
+      }
+
+      function initFirebaseIfConfigured() {
+        if (!FIREBASE_CONFIG.apiKey || !FIREBASE_CONFIG.projectId) return null;
+        try {
+          if (!firebase.apps.length) {
+            firebase.initializeApp(FIREBASE_CONFIG);
+          }
+          return firebase.firestore();
+        } catch (_e) {
+          return null;
+        }
+      }
+
+      function subscribeFirestoreCatalog() {
+        const code = settings.syncCode || businessParam;
+        if (!code) return;
+
+        if (!firestoreDb) {
+          firestoreDb = initFirebaseIfConfigured();
+        }
+        if (!firestoreDb) return;
+
+        if (typeof unsubscribeCatalog === "function") {
+          unsubscribeCatalog();
+          unsubscribeCatalog = null;
+        }
+
+        setSyncBanner("sync", t("syncing"));
+
+        const docRef = firestoreDb.collection("businesses").doc(code);
+        unsubscribeCatalog = docRef.onSnapshot(
+          (snap) => {
+            if (!snap.exists) return;
+            const data = snap.data() || {};
+            if (data.businessName) settings.businessName = data.businessName;
+            if (data.businessPhone) settings.businessPhone = data.businessPhone;
+            if (data.businessAddress) settings.businessAddress = data.businessAddress;
+            if (data.currencySymbol) settings.currencySymbol = data.currencySymbol;
+            if (Array.isArray(data.inventory)) {
+              inventory = data.inventory.slice();
+            }
+            renderStoreHeader();
+            renderCategories();
+            renderProducts();
+            renderCart();
+            setSyncBanner("cloud", t("syncedCloud"));
+          },
+          (_err) => {
+            setSyncBanner("local", t("syncedLocal"));
+          }
+        );
+      }
+
+      function getCategories() {
+        const set = new Set();
+        inventory.forEach((item) => {
+          if (item && item.categoria) {
+            set.add(String(item.categoria).trim());
+          }
+        });
+        return ["__ALL__", ...Array.from(set)];
+      }
+
+      function renderCategories() {
+        const container = document.getElementById("categoryPills");
+        if (!container) return;
+        const cats = getCategories();
+        container.innerHTML = "";
+
+        cats.forEach((cat) => {
+          const active = selectedCategory === cat;
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.textContent = cat === "__ALL__" ? t("allCategories") : cat;
+          btn.className = `px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition border ${
+            active
+              ? "bg-sky-600 text-white border-sky-500 shadow"
+              : "bg-slate-900 text-slate-300 border-slate-800 hover:border-slate-700"
+          }`;
+          btn.addEventListener("click", () => {
+            selectedCategory = cat;
+            renderCategories();
+            renderProducts();
+          });
+          container.appendChild(btn);
+        });
+      }
+
+      function getFilteredProducts() {
+        const q = searchQuery.trim().toLowerCase();
+        return inventory.filter((item) => {
+          if (!item || !item.nombre) return false;
+          if (item.mostrarEnCatalogo === false) return false;
+          if (selectedCategory !== "__ALL__" && String(item.categoria || "").trim() !== selectedCategory) {
+            return false;
+          }
+          if (q) {
+            const hay = `${item.nombre} ${item.categoria || ""} ${item.codigo || ""}`.toLowerCase();
+            if (!hay.includes(q)) return false;
+          }
+          return true;
+        });
+      }
+
+      function renderProducts() {
+        const grid = document.getElementById("productsGrid");
+        const empty = document.getElementById("emptyState");
+        if (!grid) return;
+
+        const list = getFilteredProducts();
+        grid.innerHTML = "";
+
+        if (!list.length) {
+          if (empty) empty.classList.remove("hidden");
+          return;
+        }
+        if (empty) empty.classList.add("hidden");
+
+        list.forEach((prod) => {
+          const stock = Number(prod.stock ?? 0);
+          const price = Number(prod.precioVenta ?? prod.precio ?? 0);
+          const card = document.createElement("div");
+          card.className = "bg-slate-900/90 border border-slate-800 hover:border-sky-500/50 rounded-2xl p-4 flex flex-col justify-between transition shadow";
+
+          const imgHtml = prod.imagen
+            ? `<img src="${String(prod.imagen).replace(/"/g, "&quot;")}" alt="${String(prod.nombre).replace(/"/g, "&quot;")}" class="w-full h-36 object-cover rounded-xl mb-3 bg-slate-950" />`
+            : `<div class="w-full h-28 rounded-xl mb-3 bg-gradient-to-br from-slate-800 to-slate-950 flex items-center justify-center text-slate-500 text-xs font-semibold uppercase tracking-wider">${escapeHtml(prod.categoria || "Gestor Pro")}</div>`;
+
+          card.innerHTML = `
+            <div>
+              ${imgHtml}
+              <div class="flex items-start justify-between gap-2">
+                <h3 class="font-bold text-sm text-white leading-snug">${escapeHtml(prod.nombre)}</h3>
+                <span class="text-[11px] px-2 py-0.5 rounded-full ${
+                  stock > 0
+                    ? "bg-emerald-500/15 text-emerald-300 border border-emerald-500/30"
+                    : "bg-rose-500/15 text-rose-300 border border-rose-500/30"
+                }">${stock > 0 ? `${t("stockLabel")}: ${stock}` : t("outOfStock")}</span>
+              </div>
+              ${prod.categoria ? `<p class="text-[11px] text-slate-400 mt-1">${escapeHtml(prod.categoria)}</p>` : ""}
+            </div>
+            <div class="mt-4 pt-3 border-t border-slate-800/80 flex items-center justify-between gap-2">
+              <span class="text-base font-extrabold text-sky-400">${formatMoney(price)}</span>
+              <button type="button" ${stock <= 0 ? "disabled" : ""} data-prod-id="${escapeHtml(String(prod.id))}" class="add-cart-btn px-3.5 py-1.5 rounded-xl text-xs font-semibold transition ${
+                stock > 0
+                  ? "bg-sky-600 hover:bg-sky-500 text-white cursor-pointer"
+                  : "bg-slate-800 text-slate-500 cursor-not-allowed"
+              }">${t("addToCart")}</button>
+            </div>
+          `;
+
+          const addBtn = card.querySelector(".add-cart-btn");
+          if (addBtn && stock > 0) {
+            addBtn.addEventListener("click", () => addToCart(prod));
+          }
+          grid.appendChild(card);
+        });
+      }
+
+      function escapeHtml(str) {
+        return String(str || "")
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;");
+      }
+
+      function addToCart(prod) {
+        const stock = Number(prod.stock ?? 0);
+        const price = Number(prod.precioVenta ?? prod.precio ?? 0);
+        const existing = cart.find((c) => String(c.id) === String(prod.id));
+        const currentQty = existing ? Number(existing.cantidad || 0) : 0;
+
+        if (currentQty + 1 > stock) {
+          showToast(`${t("stockLabel")}: ${stock}`, true);
+          return;
+        }
+
+        if (existing) {
+          existing.cantidad = currentQty + 1;
+          existing.precio = price;
+          existing.nombre = prod.nombre;
+        } else {
+          cart.push({
+            id: prod.id,
+            nombre: prod.nombre,
+            precio: price,
+            cantidad: 1
+          });
+        }
+        saveCart();
+        renderCart();
+        showToast(`${prod.nombre} (${t("addToCart")})`);
+      }
+
+      function updateCartQty(prodId, delta) {
+        const idx = cart.findIndex((c) => String(c.id) === String(prodId));
+        if (idx === -1) return;
+        const item = cart[idx];
+        const prod = inventory.find((p) => String(p.id) === String(prodId));
+        const maxStock = prod ? Number(prod.stock ?? 999999) : 999999;
+        const nextQty = Number(item.cantidad || 0) + delta;
+
+        if (nextQty <= 0) {
+          cart.splice(idx, 1);
+        } else if (nextQty <= maxStock) {
+          item.cantidad = nextQty;
+        }
+        saveCart();
+        renderCart();
+      }
+
+      function getCartTotal() {
+        return cart.reduce((acc, item) => acc + Number(item.precio || 0) * Number(item.cantidad || 0), 0);
+      }
+
+      function renderCart() {
+        const countBadge = document.getElementById("cartCountBadge");
+        const listEl = document.getElementById("cartItemsList");
+        const totalEl = document.getElementById("cartTotalAmount");
+
+        const totalUnits = cart.reduce((sum, i) => sum + Number(i.cantidad || 0), 0);
+        if (countBadge) countBadge.textContent = String(totalUnits);
+        if (totalEl) totalEl.textContent = formatMoney(getCartTotal());
+
+        if (!listEl) return;
+        listEl.innerHTML = "";
+
+        if (!cart.length) {
+          listEl.innerHTML = `<p class="text-sm text-slate-400 text-center py-6">${escapeHtml(t("emptyCart"))}</p>`;
+          return;
+        }
+
+        cart.forEach((item) => {
+          const row = document.createElement("div");
+          row.className = "flex items-center justify-between gap-3 bg-slate-950/80 border border-slate-800 rounded-xl p-3";
+          const lineTotal = Number(item.precio || 0) * Number(item.cantidad || 0);
+          row.innerHTML = `
+            <div class="min-w-0 flex-1">
+              <p class="text-sm font-semibold text-white truncate">${escapeHtml(item.nombre)}</p>
+              <p class="text-xs text-slate-400">${formatMoney(item.precio)} c/u • <span class="text-emerald-400 font-semibold">${formatMoney(lineTotal)}</span></p>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <button type="button" data-dec="${escapeHtml(String(item.id))}" class="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 text-white font-bold text-sm">-</button>
+              <span class="w-6 text-center text-xs font-bold text-white">${Number(item.cantidad || 0)}</span>
+              <button type="button" data-inc="${escapeHtml(String(item.id))}" class="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 text-white font-bold text-sm">+</button>
+            </div>
+          `;
+          row.querySelector("[data-dec]").addEventListener("click", () => updateCartQty(item.id, -1));
+          row.querySelector("[data-inc]").addEventListener("click", () => updateCartQty(item.id, 1));
+          listEl.appendChild(row);
+        });
+      }
+
+      function buildUnifiedOrderPayload() {
+        const cliente = (document.getElementById("clientName")?.value || "").trim();
+        const telefonoCliente = (document.getElementById("clientPhone")?.value || "").trim();
+        const entrega = (document.getElementById("deliveryType")?.value || "Retiro en local").trim();
+        const metodoPago = (document.getElementById("paymentMethod")?.value || "Efectivo").trim();
+        const direccion = (document.getElementById("deliveryAddress")?.value || "").trim();
+        const referencia = (document.getElementById("paymentReference")?.value || "").trim();
+
+        if (!cart.length) {
+          showToast(t("errEmptyCart"), true);
+          return null;
+        }
+        if (!cliente || !telefonoCliente) {
+          showToast(t("errClientInfo"), true);
+          return null;
+        }
+
+        const normalizedItems = cart.map((item) => ({
+          id: item.id,
+          nombre: item.nombre,
+          precio: Number(item.precio || 0),
+          cantidad: Number(item.cantidad || 1)
+        }));
+
+        const total = normalizedItems.reduce((sum, i) => sum + i.precio * i.cantidad, 0);
+
+        return {
+          id: "PED-" + Date.now() + "-" + Math.floor(Math.random() * 1000),
+          items: normalizedItems,
+          total: Number(total.toFixed(2)),
+          cliente,
+          telefonoCliente,
+          entrega,
+          direccion,
+          metodoPago,
+          referencia,
+          estado: "pendiente",
+          fecha: new Date().toISOString(),
+          origen: "catalogo",
+          autor: AUTHOR_INFO.author
+        };
+      }
+
+      async function persistOrderToLocalAndCloud(order) {
+        try {
+          const rawDb = localStorage.getItem(STORAGE_KEYS.DB);
+          const db = rawDb ? JSON.parse(rawDb) : {};
+          if (!Array.isArray(db.pedidos)) db.pedidos = [];
+          const exists = db.pedidos.some((p) => String(p.id) === String(order.id));
+          if (!exists) {
+            db.pedidos.unshift(order);
+          }
+          localStorage.setItem(STORAGE_KEYS.DB, JSON.stringify(db));
+        } catch (_e) {}
+
+        const code = settings.syncCode || businessParam;
+        if (code) {
+          if (!firestoreDb) firestoreDb = initFirebaseIfConfigured();
+          if (firestoreDb) {
+            try {
+              await firestoreDb
+                .collection("businesses")
+                .doc(code)
+                .collection("pedidos")
+                .doc(String(order.id))
+                .set(order, { merge: true });
+            } catch (_err) {
+              // El pedido ya quedó guardado localmente
+            }
+          }
+        }
+      }
+
+      function openWhatsAppForOrder(order) {
+        const lines = [
+          `*${settings.businessName || "Gestor Pro"} — Nuevo Pedido (${order.id})*`,
+          `Cliente: ${order.cliente}`,
+          `Teléfono: ${order.telefonoCliente}`,
+          `Entrega: ${order.entrega}${order.direccion ? ` (${order.direccion})` : ""}`,
+          `Pago: ${order.metodoPago}${order.referencia ? ` — Ref: ${order.referencia}` : ""}`,
+          "--- Productos ---",
+          ...order.items.map((i) => `• ${i.cantidad}x ${i.nombre} (${formatMoney(i.precio * i.cantidad)})`),
+          `*Total: ${formatMoney(order.total)}*`
+        ];
+        const text = encodeURIComponent(lines.join("\n"));
+        const rawPhone = String(settings.businessPhone || "").replace(/\D/g, "");
+        const waUrl = rawPhone
+          ? `https://wa.me/${rawPhone}?text=${text}`
+          : `https://wa.me/?text=${text}`;
+        window.open(waUrl, "_blank", "noopener,noreferrer");
+      }
+
+      async function handleSubmitOrder(withWhatsapp = false) {
+        const order = buildUnifiedOrderPayload();
+        if (!order) return;
+
+        await persistOrderToLocalAndCloud(order);
+
+        cart = [];
+        saveCart();
+        renderCart();
+
+        const modal = document.getElementById("cartModal");
+        if (modal) modal.classList.add("hidden");
+
+        showToast(t("orderSuccess"));
+
+        if (withWhatsapp) {
+          openWhatsAppForOrder(order);
+        }
+      }
+
+      function bindEvents() {
+        document.getElementById("langSelect")?.addEventListener("change", (e) => {
+          currentLang = e.target.value;
+          localStorage.setItem(STORAGE_KEYS.LANG, currentLang);
+          applyLanguage();
+        });
+
+        document.getElementById("searchInput")?.addEventListener("input", (e) => {
+          searchQuery = e.target.value || "";
+          renderProducts();
+        });
+
+        document.getElementById("refreshCatalogBtn")?.addEventListener("click", () => {
+          loadFromLocalStorage();
+          subscribeFirestoreCatalog();
+          renderCategories();
+          renderProducts();
+          showToast(t("syncedLocal"));
+        });
+
+        document.getElementById("openCartBtn")?.addEventListener("click", () => {
+          renderCart();
+          document.getElementById("cartModal")?.classList.remove("hidden");
+        });
+
+        document.getElementById("closeCartBtn")?.addEventListener("click", () => {
+          document.getElementById("cartModal")?.classList.add("hidden");
+        });
+
+        document.getElementById("cartModal")?.addEventListener("click", (e) => {
+          if (e.target && e.target.id === "cartModal") {
+            e.currentTarget.classList.add("hidden");
+          }
+        });
+
+        document.getElementById("submitOrderBtn")?.addEventListener("click", () => {
+          handleSubmitOrder(false);
+        });
+
+        document.getElementById("submitWhatsappBtn")?.addEventListener("click", () => {
+          handleSubmitOrder(true);
+        });
+
+        window.addEventListener("storage", (e) => {
+          if (e.key === STORAGE_KEYS.DB || e.key === STORAGE_KEYS.SETTINGS) {
+            loadFromLocalStorage();
+            renderCategories();
+            renderProducts();
+            renderCart();
+          }
+        });
+      }
+
+      loadCart();
+      loadFromLocalStorage();
+      applyLanguage();
+      bindEvents();
+      subscribeFirestoreCatalog();
+    })();
+  </script>
+</body>
+</html>

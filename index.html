@@ -1,0 +1,2118 @@
+<!DOCTYPE html>
+<html lang="es" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="author" content="Joelvy José Salazar Vargas (C.I. 30.022.434)" />
+  <meta name="copyright" content="© 2026 Gestor Pro. Todos los derechos reservados. Joelvy José Salazar Vargas (C.I. 30.022.434)" />
+  <meta name="theme-color" content="#0f172a" />
+  <title>Gestor Pro — Gestión Comercial, Inventario, Caja y Catálogo</title>
+    <link rel="manifest" href="./manifest.json" />
+  <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png" />
+  <link rel="icon" type="image/png" sizes="512x512" href="./icon-512.png" />
+  <link rel="apple-touch-icon" sizes="192x192" href="./icon-192.png" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Gestor Pro" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: { 50: '#f0f9ff', 500: '#0ea5e9', 600: '#0284c7', 700: '#0369a1' }
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    body { font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    @media print {
+      .no-print { display: none !important; }
+      body { background: #ffffff !important; color: #000000 !important; }
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col selection:bg-sky-500 selection:text-white">
+
+  <!-- Top Header -->
+  <header class="no-print sticky top-0 z-30 bg-slate-900/95 backdrop-blur border-b border-slate-800 px-4 py-3 shadow-lg">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-3 min-w-0">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-sky-500 to-blue-700 flex items-center justify-center font-bold text-white shadow">
+          GP
+        </div>
+        <div class="min-w-0">
+          <div class="flex items-center gap-2 flex-wrap">
+            <h1 id="appBrandTitle" class="font-bold text-base sm:text-lg text-white truncate">Gestor Pro</h1>
+            <span id="proStatusBadge" class="text-[11px] px-2 py-0.5 rounded-full font-semibold bg-slate-800 text-slate-300 border border-slate-700">
+              Plan Estándar
+            </span>
+            <span id="syncStatusPill" class="text-[11px] px-2 py-0.5 rounded-full font-medium bg-slate-800/80 text-slate-400 border border-slate-700/80">
+              Local
+            </span>
+          </div>
+          <p id="headerBusinessSubtitle" class="text-xs text-slate-400 truncate">Joelvy José Salazar Vargas (C.I. 30.022.434)</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2 flex-wrap">
+        <select id="langSelect" aria-label="Idioma" class="bg-slate-800 border border-slate-700 text-slate-200 text-xs rounded-lg px-2.5 py-2 focus:outline-none focus:border-sky-500">
+          <option value="es">🇪🇸 Español</option>
+          <option value="en">🇺🇸 English</option>
+          <option value="pt">🇧🇷 Português</option>
+          <option value="hi">🇮🇳 हिन्दी</option>
+          <option value="id">🇮🇩 Bahasa Indonesia</option>
+          <option value="ru">🇷🇺 Русский</option>
+          <option value="ar">🇸🇦 العربية</option>
+          <option value="fr">🇫🇷 Français</option>
+          <option value="de">🇩🇪 Deutsch</option>
+          <option value="ja">🇯🇵 日本語</option>
+        </select>
+
+        <a id="openCatalogLink" href="./catalogo.html" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-3 py-2 rounded-lg shadow transition">
+          Catálogo
+        </a>
+
+        <button id="soundToggleBtn" type="button" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-medium px-2.5 py-2 rounded-lg transition" title="Sonido de venta">
+          🔊 On
+        </button>
+
+        <button id="openProModalBtn" type="button" class="bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold px-3 py-2 rounded-lg shadow transition">
+          Pro / Billing
+        </button>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <nav class="max-w-7xl mx-auto mt-3 flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-0.5">
+      <button data-tab="panel" class="tab-btn px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition bg-sky-600 text-white" type="button">Panel</button>
+      <button data-tab="inventario" class="tab-btn px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition bg-slate-800/80 text-slate-300 hover:bg-slate-800" type="button">Inventario</button>
+      <button data-tab="ventas" class="tab-btn px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition bg-slate-800/80 text-slate-300 hover:bg-slate-800" type="button">Ventas</button>
+      <button data-tab="fiados" class="tab-btn px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition bg-slate-800/80 text-slate-300 hover:bg-slate-800" type="button">Fiados</button>
+      <button data-tab="mermas" class="tab-btn px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition bg-slate-800/80 text-slate-300 hover:bg-slate-800" type="button">Mermas / Caducidad</button>
+      <button data-tab="caja" class="tab-btn px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition bg-slate-800/80 text-slate-300 hover:bg-slate-800" type="button">Caja y Finanzas</button>
+      <button data-tab="pedidos" class="tab-btn px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition bg-slate-800/80 text-slate-300 hover:bg-slate-800 flex items-center gap-1.5" type="button">
+        <span>Pedidos</span>
+        <span id="pendingOrdersCount" class="bg-rose-500 text-white text-[10px] font-bold px-1.5 py-0.2 rounded-full">0</span>
+      </button>
+      <button data-tab="ajustes" class="tab-btn px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition bg-slate-800/80 text-slate-300 hover:bg-slate-800" type="button">Ajustes y Respaldo</button>
+    </nav>
+  </header>
+
+  <!-- Rewarded Ad / Pro Banner (Hidden when Subscription is Active) -->
+  <div id="adBannerContainer" class="no-print max-w-7xl w-full mx-auto px-4 pt-3">
+    <div class="bg-gradient-to-r from-slate-900 via-slate-900 to-sky-950/60 border border-sky-500/30 rounded-2xl px-4 py-3 flex flex-wrap items-center justify-between gap-3 shadow">
+      <div class="text-xs">
+        <p id="adBannerTitle" class="font-bold text-sky-300">Espacio Publicitario • Google AdMob (Slot 3411899761)</p>
+        <p id="adBannerSub" class="text-slate-400">Obtén 6 horas de Bono Pro viendo un anuncio recompensado o suscríbete para eliminar anuncios.</p>
+      </div>
+      <div class="flex items-center gap-2">
+        <button id="watchRewardAdBtn" type="button" class="bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold px-3 py-2 rounded-xl transition">
+          Ver Anuncio (+6h Pro)
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Workspace -->
+  <main class="max-w-7xl w-full mx-auto px-4 py-5 flex-1 space-y-6">
+
+    <!-- TAB 1: PANEL -->
+    <section id="tab-panel" class="tab-section space-y-5">
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4">
+          <p class="text-xs text-slate-400">Ventas Totales</p>
+          <p id="kpiSalesTotal" class="text-xl sm:text-2xl font-extrabold text-emerald-400 mt-1">$0.00</p>
+          <p id="kpiSalesCount" class="text-[11px] text-slate-500 mt-1">0 operaciones</p>
+        </div>
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4">
+          <p class="text-xs text-slate-400">Ganancia Neta Estimada</p>
+          <p id="kpiProfitTotal" class="text-xl sm:text-2xl font-extrabold text-sky-400 mt-1">$0.00</p>
+          <p class="text-[11px] text-slate-500 mt-1">Venta - Costo - Mermas</p>
+        </div>
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4">
+          <p class="text-xs text-slate-400">Efectivo / Cuenta</p>
+          <p id="kpiCashBalance" class="text-xl sm:text-2xl font-extrabold text-amber-300 mt-1">$0.00</p>
+          <p id="kpiBankBalance" class="text-[11px] text-slate-400 mt-1">Cuenta: $0.00</p>
+        </div>
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4">
+          <p class="text-xs text-slate-400">Fiados Pendientes</p>
+          <p id="kpiFiadosTotal" class="text-xl sm:text-2xl font-extrabold text-rose-400 mt-1">$0.00</p>
+          <p id="kpiStockAlerts" class="text-[11px] text-slate-500 mt-1">0 alertas stock/caducidad</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4">
+          <h2 class="font-bold text-sm text-white mb-3">Últimas Ventas</h2>
+          <div id="recentSalesList" class="space-y-2 text-xs"></div>
+        </div>
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4">
+          <h2 class="font-bold text-sm text-white mb-3">Alertas de Inventario y Caducidad</h2>
+          <div id="alertsSummaryList" class="space-y-2 text-xs"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 2: INVENTARIO -->
+    <section id="tab-inventario" class="tab-section hidden space-y-5">
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5">
+        <div class="flex items-center justify-between gap-2 mb-4">
+          <h2 id="invFormTitle" class="font-bold text-base text-white">Agregar / Editar Producto</h2>
+          <button id="resetInvFormBtn" type="button" class="text-xs text-slate-400 hover:text-white underline">Limpiar formulario</button>
+        </div>
+
+        <form id="inventoryForm" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          <input type="hidden" id="invEditId" />
+          <div>
+            <label class="block text-xs text-slate-400 mb-1">Nombre del producto *</label>
+            <input id="invName" type="text" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white" placeholder="Ej. Harina PAN 1kg" />
+          </div>
+          <div>
+            <label class="block text-xs text-slate-400 mb-1">Categoría</label>
+            <input id="invCategory" type="text" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white" placeholder="Ej. Víveres" />
+          </div>
+          <div>
+            <label class="block text-xs text-slate-400 mb-1">Precio Costo *</label>
+            <input id="invCost" type="number" step="0.01" min="0" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white" placeholder="0.00" />
+          </div>
+          <div>
+            <label class="block text-xs text-slate-400 mb-1">Precio Venta *</label>
+            <input id="invPrice" type="number" step="0.01" min="0" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white" placeholder="0.00" />
+          </div>
+          <div>
+            <label class="block text-xs text-slate-400 mb-1">Stock Inicial *</label>
+            <input id="invStock" type="number" step="1" min="0" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white" placeholder="0" />
+          </div>
+          <div>
+            <label class="block text-xs text-slate-400 mb-1">Stock Mínimo Alerta</label>
+            <input id="invMinStock" type="number" step="1" min="0" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white" placeholder="5" />
+          </div>
+          <div>
+            <label class="block text-xs text-slate-400 mb-1">Fecha de Caducidad</label>
+            <input id="invExpiry" type="date" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white" />
+          </div>
+          <div class="flex items-end gap-3">
+            <label class="inline-flex items-center gap-2 text-xs text-slate-300 pb-2 cursor-pointer">
+              <input id="invShowCatalog" type="checkbox" checked class="rounded border-slate-700 bg-slate-950 text-sky-600" />
+              <span>Mostrar en catálogo</span>
+            </label>
+            <button type="submit" class="flex-1 bg-sky-600 hover:bg-sky-500 text-white font-semibold py-2 px-4 rounded-xl text-sm transition">
+              Guardar
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5">
+        <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+          <h3 class="font-bold text-sm text-white">Inventario Actual</h3>
+          <input id="invSearchInput" type="text" placeholder="Filtrar producto o categoría..." class="bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 text-xs text-white w-full sm:w-64" />
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs border-collapse">
+            <thead>
+              <tr class="border-b border-slate-800 text-slate-400">
+                <th class="py-2.5 pr-3">Producto</th>
+                <th class="py-2.5 px-3">Categoría</th>
+                <th class="py-2.5 px-3">Costo</th>
+                <th class="py-2.5 px-3">Venta</th>
+                <th class="py-2.5 px-3">Stock</th>
+                <th class="py-2.5 px-3">Caducidad</th>
+                <th class="py-2.5 pl-3 text-right">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="inventoryTableBody" class="divide-y divide-slate-800/70"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: VENTAS -->
+    <section id="tab-ventas" class="tab-section hidden space-y-5">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div class="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 space-y-4">
+          <h2 class="font-bold text-base text-white">Punto de Venta Rápido</h2>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div class="sm:col-span-2">
+              <label class="block text-xs text-slate-400 mb-1">Seleccionar producto</label>
+              <select id="saleProductSelect" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white"></select>
+            </div>
+            <div>
+              <label class="block text-xs text-slate-400 mb-1">Cantidad</label>
+              <div class="flex gap-2">
+                <input id="saleQtyInput" type="number" min="1" value="1" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white" />
+                <button id="addSaleItemBtn" type="button" class="bg-sky-600 hover:bg-sky-500 text-white font-semibold px-4 rounded-xl text-sm whitespace-nowrap">+ Añadir</button>
+              </div>
+            </div>
+          </div>
+
+          <div id="saleCartItems" class="space-y-2 border-t border-slate-800 pt-3"></div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
+            <div>
+              <label class="block text-xs text-slate-400 mb-1">Canal de cobro</label>
+              <select id="saleChannelSelect" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white">
+                <option value="efectivo">Efectivo (Caja)</option>
+                <option value="cuenta">Cuenta / Transferencia / Pago Móvil</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs text-slate-400 mb-1">Cliente (opcional)</label>
+              <input id="saleCustomerInput" type="text" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white" placeholder="Consumidor final" />
+            </div>
+            <div>
+              <label class="block text-xs text-slate-400 mb-1">Referencia / Nota</label>
+              <input id="saleRefInput" type="text" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white" placeholder="Opcional" />
+            </div>
+          </div>
+
+          <div class="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-800">
+            <div>
+              <span class="text-xs text-slate-400">Total de venta:</span>
+              <span id="saleCartTotal" class="text-xl font-extrabold text-emerald-400 ml-2">$0.00</span>
+            </div>
+            <div class="flex gap-2">
+              <button id="completeSaleBtn" type="button" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-5 py-2.5 rounded-xl text-sm shadow transition">
+                Registrar Venta
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Thermal / Ticket Preview -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <h3 class="font-bold text-sm text-white">Ticket / Recibo</h3>
+              <div class="flex gap-1.5">
+                <button id="printThermalBtn" type="button" class="bg-slate-800 hover:bg-slate-700 text-sky-300 border border-slate-700 px-2.5 py-1 rounded-lg text-xs font-semibold">🖨️ Térmica/BT</button>
+                <button id="exportPdfBtn" type="button" class="bg-slate-800 hover:bg-slate-700 text-emerald-300 border border-slate-700 px-2.5 py-1 rounded-lg text-xs font-semibold">📄 PDF</button>
+              </div>
+            </div>
+            <pre id="ticketPreviewBox" class="bg-slate-950 border border-slate-800 rounded-xl p-3 text-[11px] font-mono text-slate-200 whitespace-pre-wrap leading-relaxed min-h-[240px]">Selecciona o registra una venta para generar el ticket.</pre>
+          </div>
+          <p id="btPrinterStatus" class="text-[11px] text-slate-500 mt-3">Impresora Bluetooth: lista vía Web Bluetooth o impresión del sistema.</p>
+        </div>
+      </div>
+
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5">
+        <h3 class="font-bold text-sm text-white mb-3">Historial de Ventas</h3>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs border-collapse">
+            <thead>
+              <tr class="border-b border-slate-800 text-slate-400">
+                <th class="py-2 pr-3">ID / Fecha</th>
+                <th class="py-2 px-3">Detalle</th>
+                <th class="py-2 px-3">Canal</th>
+                <th class="py-2 px-3">Total</th>
+                <th class="py-2 px-3">Ganancia</th>
+                <th class="py-2 pl-3 text-right">Ticket</th>
+              </tr>
+            </thead>
+            <tbody id="salesHistoryBody" class="divide-y divide-slate-800/70"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 4: FIADOS -->
+    <section id="tab-fiados" class="tab-section hidden space-y-5">
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5">
+        <h2 class="font-bold text-base text-white mb-4">Registrar Crédito / Fiado</h2>
+        <form id="fiadoForm" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+          <div>
+            <label class="block text-xs text-slate-400 mb-1">Cliente *</label>
+            <input id="fiadoClient" type="text" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white" placeholder="Nombre del cliente" />
+          </div>
+          <div>
+            <label class="block text-xs text-slate-400 mb-1">Producto (opcional)</label>
+            <select id="fiadoProductSelect" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white"></select>
+          </div>
+          <div>
+            <label class="block text-xs text-slate-400 mb-1">Cantidad</label>
+            <input id="fiadoQty" type="number" min="0" step="1" value="1" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white" />
+          </div>
+          <div>
+            <label class="block text-xs text-slate-400 mb-1">Monto Total ($) *</label>
+            <input id="fiadoAmount" type="number" min="0.01" step="0.01" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white" placeholder="0.00" />
+          </div>
+          <div class="flex items-end">
+            <button type="submit" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-2 px-4 rounded-xl text-sm transition">
+              Guardar Fiado
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5">
+        <h3 class="font-bold text-sm text-white mb-3">Cuentas por Cobrar (Fiados)</h3>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs border-collapse">
+            <thead>
+              <tr class="border-b border-slate-800 text-slate-400">
+                <th class="py-2 pr-3">Cliente</th>
+                <th class="py-2 px-3">Concepto</th>
+                <th class="py-2 px-3">Pendiente</th>
+                <th class="py-2 px-3">Estado</th>
+                <th class="py-2 pl-3 text-right">Abonar / Cobrar</th>
+              </tr>
+            </thead>
+            <tbody id="fiadosTableBody" class="divide-y divide-slate-800/70"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 5: MERMAS / CADUCIDAD -->
+    <section id="tab-mermas" class="tab-section hidden space-y-5">
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5">
+        <h2 class="font-bold text-base text-white mb-4">Registrar Merma, Rotura o Caducidad</h2>
+        <form id="mermaForm" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          <div>
+            <label class="block text-xs text-slate-400 mb-1">Producto *</label>
+            <select id="mermaProductSelect" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white"></select>
+          </div>
+          <div>
+            <label class="block text-xs text-slate-400 mb-1">Cantidad afectada *</label>
+            <input id="mermaQty" type="number" min="1" step="1" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white" value="1" />
+          </div>
+          <div>
+            <label class="block text-xs text-slate-400 mb-1">Motivo</label>
+            <select id="mermaReason" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white">
+              <option value="Caducidad">Caducidad</option>
+              <option value="Daño / Rotura">Daño / Rotura</option>
+              <option value="Merma operativa">Merma operativa</option>
+              <option value="Robo / Pérdida">Robo / Pérdida</option>
+            </select>
+          </div>
+          <div class="flex items-end">
+            <button type="submit" class="w-full bg-rose-600 hover:bg-rose-500 text-white font-semibold py-2 px-4 rounded-xl text-sm transition">
+              Registrar Merma
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5">
+        <h3 class="font-bold text-sm text-white mb-3">Historial de Mermas</h3>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs border-collapse">
+            <thead>
+              <tr class="border-b border-slate-800 text-slate-400">
+                <th class="py-2 pr-3">Fecha</th>
+                <th class="py-2 px-3">Producto</th>
+                <th class="py-2 px-3">Cant.</th>
+                <th class="py-2 px-3">Motivo</th>
+                <th class="py-2 pl-3 text-right">Impacto Costo</th>
+              </tr>
+            </thead>
+            <tbody id="mermasTableBody" class="divide-y divide-slate-800/70"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 6: CAJA Y FINANZAS (INCLUYE CIERRE Z) -->
+    <section id="tab-caja" class="tab-section hidden space-y-5">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 space-y-4">
+          <h2 class="font-bold text-base text-white">Movimiento de Finanzas (Ingreso / Egreso)</h2>
+          <form id="financeForm" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs text-slate-400 mb-1">Tipo</label>
+              <select id="finType" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white">
+                <option value="ingreso">Ingreso</option>
+                <option value="egreso">Egreso / Gasto</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs text-slate-400 mb-1">Canal</label>
+              <select id="finChannel" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white">
+                <option value="efectivo">Efectivo</option>
+                <option value="cuenta">Cuenta / Banco</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs text-slate-400 mb-1">Monto *</label>
+              <input id="finAmount" type="number" step="0.01" min="0.01" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white" placeholder="0.00" />
+            </div>
+            <div>
+              <label class="block text-xs text-slate-400 mb-1">Concepto *</label>
+              <input id="finConcept" type="text" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white" placeholder="Ej. Pago servicio / Reposición" />
+            </div>
+            <div class="sm:col-span-2">
+              <button type="submit" class="w-full bg-sky-600 hover:bg-sky-500 text-white font-semibold py-2.5 rounded-xl text-sm transition">
+                Guardar Movimiento
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Cierre de Caja (Arqueo Z) -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 space-y-4">
+          <div class="flex items-center justify-between">
+            <h2 class="font-bold text-base text-white">Cierre de Caja (Arqueo Z)</h2>
+            <span class="text-[11px] px-2 py-0.5 rounded-full bg-sky-500/15 text-sky-300 border border-sky-500/30">Reporte Z</span>
+          </div>
+
+          <div class="bg-slate-950 border border-slate-800 rounded-xl p-3 grid grid-cols-2 gap-2 text-xs">
+            <div>
+              <span class="text-slate-400">Efectivo Teórico:</span>
+              <p id="zTheoreticalCash" class="text-base font-bold text-amber-300">$0.00</p>
+            </div>
+            <div>
+              <span class="text-slate-400">Saldo en Cuenta:</span>
+              <p id="zAccountBalance" class="text-base font-bold text-sky-400">$0.00</p>
+            </div>
+          </div>
+
+          <form id="zClosureForm" class="space-y-3">
+            <div>
+              <label class="block text-xs text-slate-400 mb-1">Efectivo Físico Contado *</label>
+              <input id="zCountedCash" type="number" step="0.01" min="0" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white" placeholder="0.00" />
+            </div>
+            <div>
+              <label class="block text-xs text-slate-400 mb-1">Observación del cierre</label>
+              <input id="zNote" type="text" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white" placeholder="Turno, responsable o nota..." />
+            </div>
+            <label class="inline-flex items-center gap-2 text-xs text-slate-300 cursor-pointer select-none">
+              <input id="zAutoAdjustCheckbox" type="checkbox" checked class="rounded border-slate-700 bg-slate-950 text-emerald-500" />
+              <span>Registrar automáticamente ajuste en Finanzas (Efectivo) si existe diferencia</span>
+            </label>
+            <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-xl text-sm shadow transition">
+              Ejecutar Cierre Z
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5">
+          <h3 class="font-bold text-sm text-white mb-3">Movimientos de Finanzas</h3>
+          <div class="overflow-x-auto max-h-72">
+            <table class="w-full text-left text-xs border-collapse">
+              <thead>
+                <tr class="border-b border-slate-800 text-slate-400">
+                  <th class="py-2 pr-2">Fecha</th>
+                  <th class="py-2 px-2">Concepto</th>
+                  <th class="py-2 px-2">Canal</th>
+                  <th class="py-2 pl-2 text-right">Monto</th>
+                </tr>
+              </thead>
+              <tbody id="financeTableBody" class="divide-y divide-slate-800/70"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5">
+          <h3 class="font-bold text-sm text-white mb-3">Historial de Cierres Z</h3>
+          <div id="zClosuresList" class="space-y-2.5 max-h-72 overflow-y-auto text-xs"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 7: PEDIDOS DEL CATÁLOGO -->
+    <section id="tab-pedidos" class="tab-section hidden space-y-5">
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5">
+        <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+          <div>
+            <h2 class="font-bold text-base text-white">Pedidos Recibidos del Catálogo</h2>
+            <p class="text-xs text-slate-400">Confirmar entrega descuenta inventario real e ingresa en finanzas; reembolsar repone stock y registra egreso.</p>
+          </div>
+          <a id="catalogShareLink" href="./catalogo.html" target="_blank" class="bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 text-xs font-semibold px-3 py-2 rounded-xl transition">
+            Abrir Catálogo Cliente
+          </a>
+        </div>
+
+        <div id="ordersContainer" class="space-y-3"></div>
+      </div>
+    </section>
+
+    <!-- TAB 8: AJUSTES Y RESPALDO -->
+    <section id="tab-ajustes" class="tab-section hidden space-y-5">
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 space-y-4">
+        <h2 class="font-bold text-base text-white">Configuración del Negocio y Sincronización Firestore</h2>
+        <form id="settingsForm" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          <div>
+            <label class="block text-xs text-slate-400 mb-1">Nombre del Negocio</label>
+            <input id="setBusinessName" type="text" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white" placeholder="Mi Negocio" />
+          </div>
+          <div>
+            <label class="block text-xs text-slate-400 mb-1">Teléfono / WhatsApp Negocio</label>
+            <input id="setBusinessPhone" type="text" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white" placeholder="Ej. 584120000000" />
+          </div>
+          <div>
+            <label class="block text-xs text-slate-400 mb-1">Dirección del Negocio</label>
+            <input id="setBusinessAddress" type="text" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white" placeholder="Ej. Caraballeda, La Guaira" />
+          </div>
+          <div>
+            <label class="block text-xs text-slate-400 mb-1">Símbolo de Moneda</label>
+            <input id="setCurrency" type="text" maxlength="5" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white" value="$" />
+          </div>
+          <div>
+            <label class="block text-xs text-slate-400 mb-1">Código de Sincronización (syncCode)</label>
+            <input id="setSyncCode" type="text" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white font-mono" placeholder="Ej. NEG-LAGUAI-01" />
+          </div>
+          <div class="flex items-end">
+            <button type="submit" class="w-full bg-sky-600 hover:bg-sky-500 text-white font-semibold py-2 px-4 rounded-xl text-sm transition">
+              Guardar Ajustes
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 space-y-3">
+        <h3 class="font-bold text-sm text-white">Respaldos JSON y Sincronización Cloud</h3>
+        <div class="flex flex-wrap gap-2.5">
+          <button id="exportJsonBtn" type="button" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-4 py-2 rounded-xl transition">
+            Exportar Respaldo JSON
+          </button>
+          <label class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold px-4 py-2 rounded-xl cursor-pointer transition">
+            Importar Respaldo JSON
+            <input id="importJsonInput" type="file" accept=".json,application/json" class="hidden" />
+          </label>
+          <button id="syncCloudNowBtn" type="button" class="bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold px-4 py-2 rounded-xl transition">
+            Sincronizar con Firestore
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Pro / Google Play Billing Modal -->
+  <div id="proModal" class="no-print fixed inset-0 z-50 hidden bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-5 space-y-4 shadow-2xl">
+      <div class="flex items-center justify-between">
+        <h2 class="font-bold text-base text-white">Gestor Pro — Suscripción y Bono</h2>
+        <button id="closeProModalBtn" type="button" class="text-slate-400 hover:text-white text-xl leading-none">&times;</button>
+      </div>
+      <p class="text-xs text-slate-400 leading-relaxed">
+        Activa la suscripción mensual o anual desde Google Play Billing (sin anuncios) o activa el Bono Pro de 6 horas mediante anuncio recompensado.
+      </p>
+      <div id="proModalStatusBox" class="bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs text-slate-300"></div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+        <button id="buyMonthlyBtn" type="button" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-2.5 px-3 rounded-xl text-xs transition">
+          Suscripción Mensual
+        </button>
+        <button id="buyAnnualBtn" type="button" class="bg-sky-600 hover:bg-sky-500 text-white font-bold py-2.5 px-3 rounded-xl text-xs transition">
+          Suscripción Anual
+        </button>
+      </div>
+      <button id="modalRewardAdBtn" type="button" class="w-full bg-slate-800 hover:bg-slate-700 text-sky-300 border border-slate-700 font-semibold py-2 px-3 rounded-xl text-xs transition">
+        Ver Anuncio Recompensado (+6 Horas Bono Pro)
+      </button>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="appToast" class="no-print fixed bottom-5 right-5 z-[60] hidden max-w-sm bg-slate-900 border border-sky-500/60 text-white px-4 py-3 rounded-2xl shadow-2xl text-xs"></div>
+
+  <!-- Mandatory Footer -->
+  <footer class="no-print border-t border-slate-900 bg-slate-950 py-4 px-4 text-center text-xs text-slate-500">
+    <p id="footerAuthor">Gestor Pro — Autor: Joelvy José Salazar Vargas (C.I. 30.022.434)</p>
+    <p id="footerCopyright" class="mt-0.5">© 2026 Gestor Pro. Todos los derechos reservados. Joelvy José Salazar Vargas (C.I. 30.022.434)</p>
+  </footer>
+
+  <!-- Firebase SDK (Compat) -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+  <script>
+    (function () {
+      "use strict";
+
+      const AUTHOR_META = {
+        author: "Joelvy José Salazar Vargas (C.I. 30.022.434)",
+        copyright: "© 2026 Gestor Pro. Todos los derechos reservados. Joelvy José Salazar Vargas (C.I. 30.022.434)"
+      };
+
+      // Completa apiKey y appId de tu consola Firebase para activar sincronización en nube
+      const FIREBASE_CONFIG = {
+        apiKey: "",
+        authDomain: "gestorpro-sync-8b047.firebaseapp.com",
+        projectId: "gestorpro-sync-8b047",
+        storageBucket: "gestorpro-sync-8b047.appspot.com",
+        messagingSenderId: "644496640474",
+        appId: ""
+      };
+
+      const ADMOB_CONFIG = {
+        appId: "ca-app-pub-3645077961178424~5519013340",
+        rewardedSlotId: "3411899761",
+        bonusHours: 6
+      };
+
+      // Rellenar cuando se configuren los SKUs en Google Play Console
+      const GOOGLE_BILLING_CONFIG = {
+        monthlyProductId: "",
+        annualProductId: ""
+      };
+
+      const STORAGE_KEYS = {
+        DB: "gestor_pro_db_v1",
+        SETTINGS: "gestor_pro_settings_v1",
+        LANG: "gestor_pro_lang_v1"
+      };
+
+      const UI_TRANSLATIONS = {
+        es: { title: "Gestor Pro — Gestión Comercial, Inventario, Caja y Catálogo", syncReady: "Firestore Sincronizado", syncLocal: "Modo Local", proActive: "Suscripción Pro Activa", bonusActive: "Bono Pro (6h)", stdPlan: "Plan Estándar" },
+        en: { title: "Gestor Pro — Business Management, Inventory, Cash & Catalog", syncReady: "Firestore Synced", syncLocal: "Local Mode", proActive: "Pro Subscription Active", bonusActive: "Pro Bonus (6h)", stdPlan: "Standard Plan" },
+        pt: { title: "Gestor Pro — Gestão Comercial, Estoque, Caixa e Catálogo", syncReady: "Firestore Sincronizado", syncLocal: "Modo Local", proActive: "Assinatura Pro Ativa", bonusActive: "Bônus Pro (6h)", stdPlan: "Plano Padrão" },
+        hi: { title: "Gestor Pro — व्यापार प्रबंधन, इन्वेंट्री, कैश और कैटलॉग", syncReady: "Firestore सिंक हुआ", syncLocal: "लोकल मोड", proActive: "Pro सदस्यता सक्रिय", bonusActive: "Pro बोनस (6h)", stdPlan: "मानक योजना" },
+        id: { title: "Gestor Pro — Manajemen Bisnis, Inventaris, Kas & Katalog", syncReady: "Firestore Tersinkron", syncLocal: "Mode Lokal", proActive: "Langganan Pro Aktif", bonusActive: "Bonus Pro (6j)", stdPlan: "Paket Standar" },
+        ru: { title: "Gestor Pro — Учёт, склад, касса и каталог", syncReady: "Firestore синхронизирован", syncLocal: "Локальный режим", proActive: "Подписка Pro активна", bonusActive: "Бонус Pro (6ч)", stdPlan: "Базовый план" },
+        ar: { title: "Gestor Pro — إدارة الأعمال والمخزون والصندوق والكتالوج", syncReady: "متزامن مع Firestore", syncLocal: "الوضع المحلي", proActive: "اشتراك Pro نشط", bonusActive: "مكافأة Pro (6س)", stdPlan: "الباقة القياسية" },
+        fr: { title: "Gestor Pro — Gestion Commerciale, Stock, Caisse & Catalogue", syncReady: "Firestore Synchronisé", syncLocal: "Mode Local", proActive: "Abonnement Pro Actif", bonusActive: "Bonus Pro (6h)", stdPlan: "Offre Standard" },
+        de: { title: "Gestor Pro — Warenwirtschaft, Lager, Kasse & Katalog", syncReady: "Firestore Synchronisiert", syncLocal: "Lokaler Modus", proActive: "Pro-Abo Aktiv", bonusActive: "Pro-Bonus (6 Std.)", stdPlan: "Standardtarif" },
+        ja: { title: "Gestor Pro — 在庫・売上・レジ・カタログ管理", syncReady: "Firestore同期済み", syncLocal: "ローカルモード", proActive: "Proサブスク有効", bonusActive: "Proボーナス (6時間)", stdPlan: "スタンダード" }
+      };
+
+      let currentLang = localStorage.getItem(STORAGE_KEYS.LANG) || "es";
+      let settings = {
+        businessName: "Gestor Pro",
+        businessPhone: "",
+        businessAddress: "",
+        currencySymbol: "$",
+        syncCode: "",
+        soundEnabled: true,
+        subscriptionActive: false,
+        proBonusUntil: 0
+      };
+
+      let db = {
+        inventory: [],
+        sales: [],
+        fiados: [],
+        mermas: [],
+        finanzas: [],
+        zClosures: [],
+        pedidos: []
+      };
+
+      let saleDraftItems = [];
+      let lastTicketText = "";
+      let firestoreDb = null;
+      let unsubscribeCloudDoc = null;
+      let unsubscribeCloudOrders = null;
+      let isApplyingCloudSnapshot = false;
+
+      function tUi(key) {
+        const pack = UI_TRANSLATIONS[currentLang] || UI_TRANSLATIONS.es;
+        return pack[key] || UI_TRANSLATIONS.es[key] || key;
+      }
+
+      function showToast(msg, isError = false) {
+        const el = document.getElementById("appToast");
+        if (!el) return;
+        el.textContent = msg;
+        el.className = `no-print fixed bottom-5 right-5 z-[60] max-w-sm px-4 py-3 rounded-2xl shadow-2xl text-xs border ${
+          isError
+            ? "bg-rose-950/95 border-rose-500/60 text-rose-100"
+            : "bg-slate-900/95 border-emerald-500/60 text-emerald-100"
+        }`;
+        el.classList.remove("hidden");
+        clearTimeout(el._t);
+        el._t = setTimeout(() => el.classList.add("hidden"), 3800);
+      }
+
+      function formatMoney(val) {
+        const n = Number(val || 0);
+        return `${settings.currencySymbol || "$"}${n.toFixed(2)}`;
+      }
+
+      function escapeHtml(s) {
+        return String(s || "")
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;");
+      }
+
+      function playSaleSound() {
+        if (!settings.soundEnabled) return;
+        try {
+          const AudioCtx = window.AudioContext || window.webkitAudioContext;
+          if (!AudioCtx) return;
+          const ctx = new AudioCtx();
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = "triangle";
+          osc.frequency.setValueAtTime(660, ctx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(990, ctx.currentTime + 0.14);
+          gain.gain.setValueAtTime(0.15, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.22);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start();
+          osc.stop(ctx.currentTime + 0.23);
+        } catch (_e) {}
+      }
+
+      function isProUnlocked() {
+        if (settings.subscriptionActive) return true;
+        return Number(settings.proBonusUntil || 0) > Date.now();
+      }
+
+      function hasActiveSubscription() {
+        return Boolean(settings.subscriptionActive);
+      }
+
+      function loadState() {
+        try {
+          const rawS = localStorage.getItem(STORAGE_KEYS.SETTINGS);
+          if (rawS) {
+            settings = { ...settings, ...JSON.parse(rawS) };
+          }
+          const rawDb = localStorage.getItem(STORAGE_KEYS.DB);
+          if (rawDb) {
+            const parsed = JSON.parse(rawDb);
+            db = {
+              inventory: Array.isArray(parsed.inventory) ? parsed.inventory : [],
+              sales: Array.isArray(parsed.sales) ? parsed.sales : [],
+              fiados: Array.isArray(parsed.fiados) ? parsed.fiados : [],
+              mermas: Array.isArray(parsed.mermas) ? parsed.mermas : [],
+              finanzas: Array.isArray(parsed.finanzas) ? parsed.finanzas : [],
+              zClosures: Array.isArray(parsed.zClosures) ? parsed.zClosures : [],
+              pedidos: Array.isArray(parsed.pedidos) ? parsed.pedidos : []
+            };
+          }
+        } catch (_e) {}
+      }
+
+      function saveState(pushToCloud = true) {
+        try {
+          localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(settings));
+          localStorage.setItem(STORAGE_KEYS.DB, JSON.stringify(db));
+        } catch (_e) {}
+
+        if (pushToCloud && !isApplyingCloudSnapshot && isProUnlocked() && settings.syncCode) {
+          pushSnapshotToFirestore().catch(() => {});
+        }
+      }
+
+      function ensureFirestore() {
+        if (!FIREBASE_CONFIG.apiKey || !FIREBASE_CONFIG.projectId) return null;
+        try {
+          if (!firebase.apps.length) {
+            firebase.initializeApp(FIREBASE_CONFIG);
+          }
+          return firebase.firestore();
+        } catch (_e) {
+          return null;
+        }
+      }
+
+      async function pushSnapshotToFirestore() {
+        const code = (settings.syncCode || "").trim();
+        if (!code || !isProUnlocked()) return;
+        if (!firestoreDb) firestoreDb = ensureFirestore();
+        if (!firestoreDb) return;
+
+        await firestoreDb.collection("businesses").doc(code).set(
+          {
+            businessName: settings.businessName || "Gestor Pro",
+            businessPhone: settings.businessPhone || "",
+            businessAddress: settings.businessAddress || "",
+            currencySymbol: settings.currencySymbol || "$",
+            syncCode: code,
+            inventory: db.inventory,
+            sales: db.sales,
+            fiados: db.fiados,
+            mermas: db.mermas,
+            finanzas: db.finanzas,
+            zClosures: db.zClosures,
+            pedidos: db.pedidos,
+            autor: AUTHOR_META.author,
+            updatedAt: new Date().toISOString()
+          },
+          { merge: true }
+        );
+      }
+
+      function subscribeFirestoreListeners() {
+        if (typeof unsubscribeCloudDoc === "function") {
+          unsubscribeCloudDoc();
+          unsubscribeCloudDoc = null;
+        }
+        if (typeof unsubscribeCloudOrders === "function") {
+          unsubscribeCloudOrders();
+          unsubscribeCloudOrders = null;
+        }
+
+        const pill = document.getElementById("syncStatusPill");
+        const code = (settings.syncCode || "").trim();
+        if (!code || !isProUnlocked()) {
+          if (pill) {
+            pill.textContent = tUi("syncLocal");
+            pill.className = "text-[11px] px-2 py-0.5 rounded-full font-medium bg-slate-800 text-slate-400 border border-slate-700";
+          }
+          return;
+        }
+
+        if (!firestoreDb) firestoreDb = ensureFirestore();
+        if (!firestoreDb) return;
+
+        const bizRef = firestoreDb.collection("businesses").doc(code);
+
+        unsubscribeCloudDoc = bizRef.onSnapshot((snap) => {
+          if (!snap.exists) return;
+          const remote = snap.data() || {};
+          isApplyingCloudSnapshot = true;
+          try {
+            if (Array.isArray(remote.inventory)) db.inventory = remote.inventory;
+            if (Array.isArray(remote.sales)) db.sales = remote.sales;
+            if (Array.isArray(remote.fiados)) db.fiados = remote.fiados;
+            if (Array.isArray(remote.mermas)) db.mermas = remote.mermas;
+            if (Array.isArray(remote.finanzas)) db.finanzas = remote.finanzas;
+            if (Array.isArray(remote.zClosures)) db.zClosures = remote.zClosures;
+            if (Array.isArray(remote.pedidos) && remote.pedidos.length) {
+              db.pedidos = mergeOrdersArray(db.pedidos, remote.pedidos);
+            }
+            localStorage.setItem(STORAGE_KEYS.DB, JSON.stringify(db));
+            renderAll();
+            if (pill) {
+              pill.textContent = tUi("syncReady");
+              pill.className = "text-[11px] px-2 py-0.5 rounded-full font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30";
+            }
+          } finally {
+            isApplyingCloudSnapshot = false;
+          }
+        });
+
+        unsubscribeCloudOrders = bizRef.collection("pedidos").onSnapshot((querySnap) => {
+          if (querySnap.empty) return;
+          const cloudOrders = [];
+          querySnap.forEach((doc) => {
+            cloudOrders.push({ id: doc.id, ...doc.data() });
+          });
+          isApplyingCloudSnapshot = true;
+          try {
+            db.pedidos = mergeOrdersArray(db.pedidos, cloudOrders);
+            localStorage.setItem(STORAGE_KEYS.DB, JSON.stringify(db));
+            renderOrders();
+            updatePendingOrdersBadge();
+          } finally {
+            isApplyingCloudSnapshot = false;
+          }
+        });
+      }
+
+      function mergeOrdersArray(localList, incomingList) {
+        const map = new Map();
+        (Array.isArray(localList) ? localList : []).forEach((o) => {
+          if (o && o.id) map.set(String(o.id), { ...o });
+        });
+        (Array.isArray(incomingList) ? incomingList : []).forEach((o) => {
+          if (!o || !o.id) return;
+          const key = String(o.id);
+          const existing = map.get(key);
+          if (!existing) {
+            map.set(key, normalizeOrder(o));
+          } else {
+            const localTerminal = ["confirmado", "reembolsado", "cancelado"].includes(existing.estado);
+            map.set(key, localTerminal ? existing : normalizeOrder({ ...existing, ...o }));
+          }
+        });
+        return Array.from(map.values()).sort((a, b) => String(b.fecha || "").localeCompare(String(a.fecha || "")));
+      }
+
+      function normalizeOrder(raw) {
+        const items = Array.isArray(raw.items)
+          ? raw.items.map((it) => ({
+              id: it.id,
+              nombre: it.nombre || "Producto",
+              precio: Number(it.precio || 0),
+              cantidad: Number(it.cantidad || 1)
+            }))
+          : [];
+        const computedTotal = items.reduce((s, i) => s + i.precio * i.cantidad, 0);
+        return {
+          id: String(raw.id || "PED-" + Date.now()),
+          items,
+          total: Number((raw.total !== undefined ? raw.total : computedTotal) || 0),
+          cliente: raw.cliente || "Cliente Catálogo",
+          telefonoCliente: raw.telefonoCliente || "",
+          entrega: raw.entrega || "Retiro en local",
+          direccion: raw.direccion || "",
+          metodoPago: raw.metodoPago || "Efectivo",
+          referencia: raw.referencia || "",
+          estado: raw.estado || "pendiente",
+          fecha: raw.fecha || new Date().toISOString()
+        };
+      }
+
+      function calculateBalances() {
+        let cash = 0;
+        let account = 0;
+        let salesTotal = 0;
+        let profitTotal = 0;
+
+        db.sales.forEach((s) => {
+          const total = Number(s.total || 0);
+          const cost = Number(s.costoTotal || 0);
+          salesTotal += total;
+          profitTotal += total - cost;
+        });
+
+        db.finanzas.forEach((f) => {
+          const amt = Number(f.monto || 0);
+          const sign = f.tipo === "egreso" ? -1 : 1;
+          if (f.canal === "cuenta") {
+            account += sign * amt;
+          } else {
+            cash += sign * amt;
+          }
+        });
+
+        const mermaLoss = db.mermas.reduce((sum, m) => sum + Number(m.costoImpacto || 0), 0);
+        profitTotal -= mermaLoss;
+
+        const fiadosPending = db.fiados
+          .filter((fd) => Number(fd.pendiente || 0) > 0)
+          .reduce((sum, fd) => sum + Number(fd.pendiente || 0), 0);
+
+        return {
+          cash: Number(cash.toFixed(2)),
+          account: Number(account.toFixed(2)),
+          salesTotal: Number(salesTotal.toFixed(2)),
+          profitTotal: Number(profitTotal.toFixed(2)),
+          mermaLoss: Number(mermaLoss.toFixed(2)),
+          fiadosPending: Number(fiadosPending.toFixed(2))
+        };
+      }
+
+      function renderHeaderAndPro() {
+        document.documentElement.lang = currentLang;
+        document.documentElement.dir = currentLang === "ar" ? "rtl" : "ltr";
+        document.title = tUi("title");
+
+        const langSel = document.getElementById("langSelect");
+        if (langSel) langSel.value = currentLang;
+
+        const brandTitle = document.getElementById("appBrandTitle");
+        if (brandTitle) brandTitle.textContent = settings.businessName || "Gestor Pro";
+
+        const sub = document.getElementById("headerBusinessSubtitle");
+        if (sub) {
+          const parts = [AUTHOR_META.author];
+          if (settings.businessAddress) parts.push(settings.businessAddress);
+          sub.textContent = parts.join(" • ");
+        }
+
+        const catalogHref = settings.syncCode
+          ? `./catalogo.html?neg=${encodeURIComponent(settings.syncCode)}`
+          : "./catalogo.html";
+        const catLink = document.getElementById("openCatalogLink");
+        const catShare = document.getElementById("catalogShareLink");
+        if (catLink) catLink.href = catalogHref;
+        if (catShare) catShare.href = catalogHref;
+
+        const soundBtn = document.getElementById("soundToggleBtn");
+        if (soundBtn) {
+          soundBtn.textContent = settings.soundEnabled ? "🔊 On" : "🔇 Off";
+        }
+
+        const badge = document.getElementById("proStatusBadge");
+        const adBox = document.getElementById("adBannerContainer");
+        const proBox = document.getElementById("proModalStatusBox");
+
+        if (hasActiveSubscription()) {
+          if (badge) {
+            badge.textContent = tUi("proActive");
+            badge.className = "text-[11px] px-2 py-0.5 rounded-full font-bold bg-amber-400/20 text-amber-300 border border-amber-400/40";
+          }
+          if (adBox) adBox.classList.add("hidden");
+          if (proBox) proBox.textContent = "Suscripción activa: sin anuncios y con sincronización habilitada.";
+        } else if (Number(settings.proBonusUntil || 0) > Date.now()) {
+          const remMins = Math.max(1, Math.ceil((Number(settings.proBonusUntil) - Date.now()) / 60000));
+          if (badge) {
+            badge.textContent = `${tUi("bonusActive")} (${remMins}m)`;
+            badge.className = "text-[11px] px-2 py-0.5 rounded-full font-bold bg-sky-500/20 text-sky-300 border border-sky-500/40";
+          }
+          if (adBox) adBox.classList.remove("hidden");
+          if (proBox) proBox.textContent = `Bono Pro activo por ${remMins} minutos restantes.`;
+        } else {
+          if (badge) {
+            badge.textContent = tUi("stdPlan");
+            badge.className = "text-[11px] px-2 py-0.5 rounded-full font-semibold bg-slate-800 text-slate-300 border border-slate-700";
+          }
+          if (adBox) adBox.classList.remove("hidden");
+          if (proBox) proBox.textContent = "Plan Estándar activo. Usa el Bono Pro de 6h o adquiere la suscripción.";
+        }
+      }
+
+      function renderDashboard() {
+        const bal = calculateBalances();
+        document.getElementById("kpiSalesTotal").textContent = formatMoney(bal.salesTotal);
+        document.getElementById("kpiSalesCount").textContent = `${db.sales.length} operaciones`;
+        document.getElementById("kpiProfitTotal").textContent = formatMoney(bal.profitTotal);
+        document.getElementById("kpiCashBalance").textContent = formatMoney(bal.cash);
+        document.getElementById("kpiBankBalance").textContent = `Cuenta: ${formatMoney(bal.account)}`;
+        document.getElementById("kpiFiadosTotal").textContent = formatMoney(bal.fiadosPending);
+
+        const nowMs = Date.now();
+        const soonMs = nowMs + 7 * 24 * 3600 * 1000;
+        const alerts = [];
+        db.inventory.forEach((p) => {
+          const stock = Number(p.stock ?? 0);
+          const minS = Number(p.minStock ?? 5);
+          if (stock <= minS) {
+            alerts.push(`Stock bajo: ${p.nombre} (${stock} und.)`);
+          }
+          if (p.caducidad) {
+            const expTime = new Date(p.caducidad + "T23:59:59").getTime();
+            if (!Number.isNaN(expTime) && expTime <= soonMs) {
+              alerts.push(`Caducidad cercana (${p.caducidad}): ${p.nombre}`);
+            }
+          }
+        });
+
+        document.getElementById("kpiStockAlerts").textContent = `${alerts.length} alertas stock/caducidad`;
+
+        const recentSalesEl = document.getElementById("recentSalesList");
+        recentSalesEl.innerHTML = "";
+        const lastSales = db.sales.slice(0, 6);
+        if (!lastSales.length) {
+          recentSalesEl.innerHTML = `<p class="text-slate-500">Sin ventas registradas aún.</p>`;
+        } else {
+          lastSales.forEach((s) => {
+            const div = document.createElement("div");
+            div.className = "flex items-center justify-between bg-slate-950/70 border border-slate-800/80 rounded-xl px-3 py-2";
+            div.innerHTML = `<span class="text-slate-200 truncate">${escapeHtml(s.resumen || s.id)}</span><span class="font-bold text-emerald-400 ml-2">${formatMoney(s.total)}</span>`;
+            recentSalesEl.appendChild(div);
+          });
+        }
+
+        const alertsEl = document.getElementById("alertsSummaryList");
+        alertsEl.innerHTML = "";
+        if (!alerts.length) {
+          alertsEl.innerHTML = `<p class="text-slate-500">Sin alertas críticas de stock o caducidad.</p>`;
+        } else {
+          alerts.slice(0, 6).forEach((msg) => {
+            const div = document.createElement("div");
+            div.className = "bg-amber-500/10 border border-amber-500/30 text-amber-200 rounded-xl px-3 py-2";
+            div.textContent = msg;
+            alertsEl.appendChild(div);
+          });
+        }
+      }
+
+      function renderInventory() {
+        const tbody = document.getElementById("inventoryTableBody");
+        const q = (document.getElementById("invSearchInput")?.value || "").trim().toLowerCase();
+        tbody.innerHTML = "";
+
+        const rows = db.inventory.filter((item) => {
+          if (!q) return true;
+          return `${item.nombre} ${item.categoria || ""}`.toLowerCase().includes(q);
+        });
+
+        if (!rows.length) {
+          tbody.innerHTML = `<tr><td colspan="7" class="py-6 text-center text-slate-500">No hay productos registrados.</td></tr>`;
+        } else {
+          rows.forEach((item) => {
+            const tr = document.createElement("tr");
+            tr.className = "hover:bg-slate-800/40";
+            tr.innerHTML = `
+              <td class="py-2.5 pr-3 font-semibold text-white">${escapeHtml(item.nombre)}</td>
+              <td class="py-2.5 px-3 text-slate-400">${escapeHtml(item.categoria || "-")}</td>
+              <td class="py-2.5 px-3 text-slate-300">${formatMoney(item.precioCosto)}</td>
+              <td class="py-2.5 px-3 font-semibold text-sky-400">${formatMoney(item.precioVenta)}</td>
+              <td class="py-2.5 px-3 font-bold ${Number(item.stock) <= Number(item.minStock ?? 5) ? "text-rose-400" : "text-emerald-400"}">${Number(item.stock ?? 0)}</td>
+              <td class="py-2.5 px-3 text-slate-400">${escapeHtml(item.caducidad || "-")}</td>
+              <td class="py-2.5 pl-3 text-right space-x-1.5 whitespace-nowrap">
+                <button type="button" data-edit="${escapeHtml(String(item.id))}" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-sky-700 text-white">Editar</button>
+                <button type="button" data-del="${escapeHtml(String(item.id))}" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-rose-700 text-rose-300">Borrar</button>
+              </td>
+            `;
+            tr.querySelector("[data-edit]").addEventListener("click", () => startEditProduct(item));
+            tr.querySelector("[data-del]").addEventListener("click", () => deleteProduct(item.id));
+            tbody.appendChild(tr);
+          });
+        }
+
+        populateProductSelects();
+      }
+
+      function populateProductSelects() {
+        const saleSel = document.getElementById("saleProductSelect");
+        const fiadoSel = document.getElementById("fiadoProductSelect");
+        const mermaSel = document.getElementById("mermaProductSelect");
+
+        if (saleSel) {
+          saleSel.innerHTML = db.inventory
+            .map((p) => `<option value="${escapeHtml(String(p.id))}">${escapeHtml(p.nombre)} — ${formatMoney(p.precioVenta)} (Stock: ${Number(p.stock || 0)})</option>`)
+            .join("");
+        }
+        if (fiadoSel) {
+          fiadoSel.innerHTML =
+            `<option value="">-- Solo monto / libre --</option>` +
+            db.inventory
+              .map((p) => `<option value="${escapeHtml(String(p.id))}">${escapeHtml(p.nombre)} (${formatMoney(p.precioVenta)})</option>`)
+              .join("");
+        }
+        if (mermaSel) {
+          mermaSel.innerHTML = db.inventory
+            .map((p) => `<option value="${escapeHtml(String(p.id))}">${escapeHtml(p.nombre)} (Stock: ${Number(p.stock || 0)})</option>`)
+            .join("");
+        }
+      }
+
+      function startEditProduct(item) {
+        document.getElementById("invEditId").value = item.id;
+        document.getElementById("invName").value = item.nombre || "";
+        document.getElementById("invCategory").value = item.categoria || "";
+        document.getElementById("invCost").value = item.precioCosto ?? 0;
+        document.getElementById("invPrice").value = item.precioVenta ?? 0;
+        document.getElementById("invStock").value = item.stock ?? 0;
+        document.getElementById("invMinStock").value = item.minStock ?? 5;
+        document.getElementById("invExpiry").value = item.caducidad || "";
+        document.getElementById("invShowCatalog").checked = item.mostrarEnCatalogo !== false;
+        document.getElementById("invFormTitle").textContent = `Editando: ${item.nombre}`;
+      }
+
+      function resetInventoryForm() {
+        document.getElementById("inventoryForm").reset();
+        document.getElementById("invEditId").value = "";
+        document.getElementById("invMinStock").value = "5";
+        document.getElementById("invShowCatalog").checked = true;
+        document.getElementById("invFormTitle").textContent = "Agregar / Editar Producto";
+      }
+
+      function deleteProduct(id) {
+        db.inventory = db.inventory.filter((p) => String(p.id) !== String(id));
+        saveState();
+        renderAll();
+        showToast("Producto eliminado del inventario.");
+      }
+
+      function renderSaleCart() {
+        const list = document.getElementById("saleCartItems");
+        const totalEl = document.getElementById("saleCartTotal");
+        list.innerHTML = "";
+        let total = 0;
+
+        saleDraftItems.forEach((it, idx) => {
+          const line = Number(it.precio) * Number(it.cantidad);
+          total += line;
+          const div = document.createElement("div");
+          div.className = "flex items-center justify-between bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs";
+          div.innerHTML = `
+            <span>${Number(it.cantidad)}x <strong>${escapeHtml(it.nombre)}</strong> (${formatMoney(it.precio)})</span>
+            <div class="flex items-center gap-2">
+              <span class="font-bold text-emerald-400">${formatMoney(line)}</span>
+              <button type="button" data-rm="${idx}" class="text-rose-400 hover:text-rose-300 font-bold">✕</button>
+            </div>
+          `;
+          div.querySelector("[data-rm]").addEventListener("click", () => {
+            saleDraftItems.splice(idx, 1);
+            renderSaleCart();
+          });
+          list.appendChild(div);
+        });
+
+        totalEl.textContent = formatMoney(total);
+      }
+
+      function buildTicketText(saleRecord) {
+        const lines = [
+          "====================================",
+          `        ${(settings.businessName || "GESTOR PRO").toUpperCase()}`,
+          `Autor: ${AUTHOR_META.author}`,
+          `Ticket: ${saleRecord.id}`,
+          `Fecha: ${new Date(saleRecord.fecha).toLocaleString()}`,
+          `Cliente: ${saleRecord.cliente || "Consumidor final"}`,
+          `Canal: ${saleRecord.canal === "cuenta" ? "Cuenta / Banco" : "Efectivo"}`,
+          "------------------------------------",
+          ...(saleRecord.items || []).map(
+            (i) => `${i.cantidad}x ${i.nombre} @ ${formatMoney(i.precio)} = ${formatMoney(i.precio * i.cantidad)}`
+          ),
+          "------------------------------------",
+          `TOTAL: ${formatMoney(saleRecord.total)}`,
+          AUTHOR_META.copyright,
+          "===================================="
+        ];
+        return lines.join("\n");
+      }
+
+      function renderSalesHistory() {
+        const tbody = document.getElementById("salesHistoryBody");
+        tbody.innerHTML = "";
+        if (!db.sales.length) {
+          tbody.innerHTML = `<tr><td colspan="6" class="py-5 text-center text-slate-500">Sin ventas registradas.</td></tr>`;
+          return;
+        }
+        db.sales.slice(0, 30).forEach((s) => {
+          const profit = Number(s.total || 0) - Number(s.costoTotal || 0);
+          const tr = document.createElement("tr");
+          tr.className = "hover:bg-slate-800/40";
+          tr.innerHTML = `
+            <td class="py-2 pr-3 font-mono text-[11px] text-slate-400">${escapeHtml(s.id)}<br/>${new Date(s.fecha).toLocaleDateString()}</td>
+            <td class="py-2 px-3 text-white">${escapeHtml(s.resumen || "")}</td>
+            <td class="py-2 px-3 text-slate-300">${s.canal === "cuenta" ? "Cuenta" : "Efectivo"}</td>
+            <td class="py-2 px-3 font-bold text-emerald-400">${formatMoney(s.total)}</td>
+            <td class="py-2 px-3 font-semibold text-sky-400">${formatMoney(profit)}</td>
+            <td class="py-2 pl-3 text-right">
+              <button type="button" data-tkt="${escapeHtml(s.id)}" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-sky-700 text-xs">Ver</button>
+            </td>
+          `;
+          tr.querySelector("[data-tkt]").addEventListener("click", () => {
+            lastTicketText = buildTicketText(s);
+            document.getElementById("ticketPreviewBox").textContent = lastTicketText;
+          });
+          tbody.appendChild(tr);
+        });
+      }
+
+      async function printThermalOrBluetooth() {
+        const text = lastTicketText || document.getElementById("ticketPreviewBox").textContent;
+        if (!text || text.includes("Selecciona o registra")) {
+          showToast("No hay ticket disponible para imprimir.", true);
+          return;
+        }
+        const statusEl = document.getElementById("btPrinterStatus");
+        if (navigator.bluetooth && typeof navigator.bluetooth.requestDevice === "function") {
+          try {
+            statusEl.textContent = "Buscando impresora térmica Bluetooth...";
+            const device = await navigator.bluetooth.requestDevice({
+              acceptAllDevices: true,
+              optionalServices: ["000018f0-0000-1000-8000-00805f9b34fb"]
+            });
+            statusEl.textContent = `Dispositivo seleccionado: ${device.name || "Impresora BT"}. Enviando a impresión del sistema...`;
+          } catch (_err) {
+            statusEl.textContent = "Bluetooth cancelado o no soportado; abriendo vista de impresión térmica.";
+          }
+        }
+        window.print();
+      }
+
+      function exportTicketPdf() {
+        const text = lastTicketText || document.getElementById("ticketPreviewBox").textContent;
+        if (!text || text.includes("Selecciona o registra")) {
+          showToast("Genera un ticket primero para exportar PDF.", true);
+          return;
+        }
+        const win = window.open("", "_blank", "width=420,height=640");
+        if (!win) {
+          window.print();
+          return;
+        }
+        win.document.write(`
+          <html><head><title>Reporte / Ticket Gestor Pro</title>
+          <style>body{font-family:monospace;padding:24px;white-space:pre-wrap;line-height:1.5;}</style>
+          </head><body>${escapeHtml(text)}</body></html>
+        `);
+        win.document.close();
+        win.focus();
+        win.print();
+      }
+
+      function renderFiados() {
+        const tbody = document.getElementById("fiadosTableBody");
+        tbody.innerHTML = "";
+        if (!db.fiados.length) {
+          tbody.innerHTML = `<tr><td colspan="5" class="py-5 text-center text-slate-500">Sin fiados registrados.</td></tr>`;
+          return;
+        }
+        db.fiados.forEach((fd) => {
+          const pending = Number(fd.pendiente || 0);
+          const tr = document.createElement("tr");
+          tr.className = "hover:bg-slate-800/40";
+          tr.innerHTML = `
+            <td class="py-2.5 pr-3 font-semibold text-white">${escapeHtml(fd.cliente)}</td>
+            <td class="py-2.5 px-3 text-slate-300">${escapeHtml(fd.concepto || "Crédito")}</td>
+            <td class="py-2.5 px-3 font-bold ${pending > 0 ? "text-rose-400" : "text-emerald-400"}">${formatMoney(pending)}</td>
+            <td class="py-2.5 px-3">${pending > 0 ? '<span class="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300">Pendiente</span>' : '<span class="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300">Pagado</span>'}</td>
+            <td class="py-2.5 pl-3 text-right">
+              ${pending > 0 ? `<button type="button" data-pay="${escapeHtml(fd.id)}" class="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-semibold">Abonar</button>` : "-"}
+            </td>
+          `;
+          const payBtn = tr.querySelector("[data-pay]");
+          if (payBtn) {
+            payBtn.addEventListener("click", () => settleFullOrPartialFiado(fd.id));
+          }
+          tbody.appendChild(tr);
+        });
+      }
+
+      function settleFullOrPartialFiado(fiadoId) {
+        const fd = db.fiados.find((x) => String(x.id) === String(fiadoId));
+        if (!fd || Number(fd.pendiente || 0) <= 0) return;
+        const amt = Number(fd.pendiente);
+        fd.pendiente = 0;
+        db.finanzas.unshift({
+          id: "FIN-" + Date.now(),
+          tipo: "ingreso",
+          canal: "efectivo",
+          monto: Number(amt.toFixed(2)),
+          concepto: `Cobro fiado: ${fd.cliente}`,
+          fecha: new Date().toISOString()
+        });
+        playSaleSound();
+        saveState();
+        renderAll();
+        showToast(`Fiado de ${fd.cliente} cobrado (${formatMoney(amt)}).`);
+      }
+
+      function renderMermas() {
+        const tbody = document.getElementById("mermasTableBody");
+        tbody.innerHTML = "";
+        if (!db.mermas.length) {
+          tbody.innerHTML = `<tr><td colspan="5" class="py-5 text-center text-slate-500">Sin mermas registradas.</td></tr>`;
+          return;
+        }
+        db.mermas.slice(0, 30).forEach((m) => {
+          const tr = document.createElement("tr");
+          tr.className = "hover:bg-slate-800/40";
+          tr.innerHTML = `
+            <td class="py-2 pr-3 text-slate-400">${new Date(m.fecha).toLocaleDateString()}</td>
+            <td class="py-2 px-3 font-semibold text-white">${escapeHtml(m.productoNombre)}</td>
+            <td class="py-2 px-3 text-rose-300 font-bold">${Number(m.cantidad)}</td>
+            <td class="py-2 px-3 text-slate-300">${escapeHtml(m.motivo)}</td>
+            <td class="py-2 pl-3 text-right font-bold text-rose-400">-${formatMoney(m.costoImpacto)}</td>
+          `;
+          tbody.appendChild(tr);
+        });
+      }
+
+      function renderFinanzasAndZ() {
+        const bal = calculateBalances();
+        document.getElementById("zTheoreticalCash").textContent = formatMoney(bal.cash);
+        document.getElementById("zAccountBalance").textContent = formatMoney(bal.account);
+
+        const tbody = document.getElementById("financeTableBody");
+        tbody.innerHTML = "";
+        if (!db.finanzas.length) {
+          tbody.innerHTML = `<tr><td colspan="4" class="py-5 text-center text-slate-500">Sin movimientos financieros.</td></tr>`;
+        } else {
+          db.finanzas.slice(0, 40).forEach((f) => {
+            const isOut = f.tipo === "egreso";
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+              <td class="py-2 pr-2 text-slate-400 text-[11px]">${new Date(f.fecha).toLocaleDateString()}</td>
+              <td class="py-2 px-2 text-white">${escapeHtml(f.concepto)}</td>
+              <td class="py-2 px-2 text-slate-300">${f.canal === "cuenta" ? "Cuenta" : "Efectivo"}</td>
+              <td class="py-2 pl-2 text-right font-bold ${isOut ? "text-rose-400" : "text-emerald-400"}">${isOut ? "-" : "+"}${formatMoney(f.monto)}</td>
+            `;
+            tbody.appendChild(tr);
+          });
+        }
+
+        const zList = document.getElementById("zClosuresList");
+        zList.innerHTML = "";
+        if (!db.zClosures.length) {
+          zList.innerHTML = `<p class="text-slate-500">No se han realizado cierres Z todavía.</p>`;
+        } else {
+          db.zClosures.forEach((z) => {
+            const div = document.createElement("div");
+            div.className = "bg-slate-950 border border-slate-800 rounded-xl p-3 space-y-1";
+            div.innerHTML = `
+              <div class="flex items-center justify-between font-bold text-white">
+                <span>${escapeHtml(z.id)}</span>
+                <span class="text-xs text-slate-400">${new Date(z.fecha).toLocaleString()}</span>
+              </div>
+              <p class="text-slate-300">Teórico: <strong>${formatMoney(z.efectivoTeorico)}</strong> | Contado: <strong>${formatMoney(z.efectivoContado)}</strong> | Dif: <strong class="${Number(z.diferencia) === 0 ? "text-emerald-400" : "text-amber-400"}">${formatMoney(z.diferencia)}</strong></p>
+              ${z.nota ? `<p class="text-slate-500">${escapeHtml(z.nota)}</p>` : ""}
+            `;
+            zList.appendChild(div);
+          });
+        }
+      }
+
+      function updatePendingOrdersBadge() {
+        const count = db.pedidos.filter((p) => p.estado === "pendiente").length;
+        const badge = document.getElementById("pendingOrdersCount");
+        if (badge) badge.textContent = String(count);
+      }
+
+      function renderOrders() {
+        updatePendingOrdersBadge();
+        const container = document.getElementById("ordersContainer");
+        if (!container) return;
+        container.innerHTML = "";
+
+        if (!db.pedidos.length) {
+          container.innerHTML = `<p class="text-sm text-slate-500 text-center py-6">No hay pedidos del catálogo todavía.</p>`;
+          return;
+        }
+
+        db.pedidos.forEach((rawOrder) => {
+          const order = normalizeOrder(rawOrder);
+          const card = document.createElement("div");
+          card.className = "bg-slate-950/90 border border-slate-800 rounded-2xl p-4 space-y-3";
+
+          const statusMap = {
+            pendiente: "bg-amber-500/20 text-amber-300 border-amber-500/30",
+            confirmado: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
+            reembolsado: "bg-rose-500/20 text-rose-300 border-rose-500/30",
+            cancelado: "bg-slate-700/40 text-slate-400 border-slate-600/30"
+          };
+          const badgeCls = statusMap[order.estado] || statusMap.pendiente;
+
+          const itemsHtml = order.items
+            .map((it) => `<li class="flex justify-between text-xs text-slate-300"><span>${Number(it.cantidad)}x ${escapeHtml(it.nombre)}</span><span>${formatMoney(Number(it.precio) * Number(it.cantidad))}</span></li>`)
+            .join("");
+
+          let actionsHtml = "";
+          if (order.estado === "pendiente") {
+            actionsHtml = `
+              <button type="button" data-confirm="${escapeHtml(order.id)}" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-3.5 py-2 rounded-xl transition">
+                Confirmar Entrega y Cobro
+              </button>
+              <button type="button" data-cancel="${escapeHtml(order.id)}" class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold px-3 py-2 rounded-xl transition">
+                Cancelar Pedido
+              </button>
+            `;
+          } else if (order.estado === "confirmado") {
+            actionsHtml = `
+              <button type="button" data-refund="${escapeHtml(order.id)}" class="bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold px-3.5 py-2 rounded-xl transition">
+                Reembolsar / Devolver Pedido
+              </button>
+            `;
+          }
+
+          card.innerHTML = `
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <div>
+                <span class="font-mono text-xs font-bold text-sky-400">${escapeHtml(order.id)}</span>
+                <span class="text-xs text-slate-400 ml-2">${new Date(order.fecha).toLocaleString()}</span>
+              </div>
+              <span class="text-[11px] px-2.5 py-0.5 rounded-full border font-semibold uppercase ${badgeCls}">${escapeHtml(order.estado)}</span>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-slate-300">
+              <div><strong>Cliente:</strong> ${escapeHtml(order.cliente)} (${escapeHtml(order.telefonoCliente || "-")})</div>
+              <div><strong>Entrega:</strong> ${escapeHtml(order.entrega)}${order.direccion ? ` — ${escapeHtml(order.direccion)}` : ""}</div>
+              <div><strong>Pago:</strong> ${escapeHtml(order.metodoPago)}${order.referencia ? ` (Ref: ${escapeHtml(order.referencia)})` : ""}</div>
+              <div class="text-emerald-400 font-extrabold text-sm sm:text-right">Total: ${formatMoney(order.total)}</div>
+            </div>
+
+            <ul class="border-t border-slate-800/80 pt-2 space-y-1">${itemsHtml}</ul>
+
+            ${actionsHtml ? `<div class="flex flex-wrap gap-2 pt-2 border-t border-slate-800/80">${actionsHtml}</div>` : ""}
+          `;
+
+          card.querySelector("[data-confirm]")?.addEventListener("click", () => confirmCatalogOrder(order.id));
+          card.querySelector("[data-cancel]")?.addEventListener("click", () => cancelCatalogOrder(order.id));
+          card.querySelector("[data-refund]")?.addEventListener("click", () => refundCatalogOrder(order.id));
+
+          container.appendChild(card);
+        });
+      }
+
+      function confirmCatalogOrder(orderId) {
+        const idx = db.pedidos.findIndex((p) => String(p.id) === String(orderId));
+        if (idx === -1) return;
+        const order = normalizeOrder(db.pedidos[idx]);
+        if (order.estado !== "pendiente") return;
+
+        let orderCostTotal = 0;
+        order.items.forEach((lineItem) => {
+          const qty = Number(lineItem.cantidad || 1);
+          const prod = db.inventory.find(
+            (p) => String(p.id) === String(lineItem.id) || String(p.nombre).toLowerCase() === String(lineItem.nombre).toLowerCase()
+          );
+          if (prod) {
+            const currentStock = Number(prod.stock ?? 0);
+            prod.stock = Math.max(0, currentStock - qty);
+            orderCostTotal += Number(prod.precioCosto || 0) * qty;
+          }
+        });
+
+        const isAccountChannel = /transfer|pago m[oó]vil|cuenta|banco|punto|tarjeta/i.test(order.metodoPago || "");
+        const channel = isAccountChannel ? "cuenta" : "efectivo";
+        const orderTotal = Number(order.total || 0);
+
+        order.estado = "confirmado";
+        order.canalCobro = channel;
+        db.pedidos[idx] = order;
+
+        const summaryText = order.items.map((i) => `${i.cantidad}x ${i.nombre}`).join(", ");
+        const saleRecord = {
+          id: "VTA-CAT-" + Date.now(),
+          fecha: new Date().toISOString(),
+          cliente: order.cliente,
+          canal: channel,
+          items: order.items,
+          resumen: `Catálogo (${order.id}): ${summaryText}`,
+          total: orderTotal,
+          costoTotal: Number(orderCostTotal.toFixed(2))
+        };
+        db.sales.unshift(saleRecord);
+
+        db.finanzas.unshift({
+          id: "FIN-" + Date.now(),
+          tipo: "ingreso",
+          canal: channel,
+          monto: orderTotal,
+          concepto: `Pedido catálogo ${order.id} — ${order.cliente}`,
+          fecha: new Date().toISOString()
+        });
+
+        lastTicketText = buildTicketText(saleRecord);
+        document.getElementById("ticketPreviewBox").textContent = lastTicketText;
+
+        playSaleSound();
+        saveState();
+        renderAll();
+        showToast(`Pedido ${order.id} confirmado: stock descontado e ingreso registrado en ${channel}.`);
+      }
+
+      function cancelCatalogOrder(orderId) {
+        const idx = db.pedidos.findIndex((p) => String(p.id) === String(orderId));
+        if (idx === -1) return;
+        if (db.pedidos[idx].estado !== "pendiente") return;
+        db.pedidos[idx].estado = "cancelado";
+        saveState();
+        renderOrders();
+        showToast(`Pedido ${orderId} cancelado.`);
+      }
+
+      function refundCatalogOrder(orderId) {
+        const idx = db.pedidos.findIndex((p) => String(p.id) === String(orderId));
+        if (idx === -1) return;
+        const order = normalizeOrder(db.pedidos[idx]);
+        if (order.estado !== "confirmado") return;
+
+        order.items.forEach((lineItem) => {
+          const qty = Number(lineItem.cantidad || 1);
+          const prod = db.inventory.find(
+            (p) => String(p.id) === String(lineItem.id) || String(p.nombre).toLowerCase() === String(lineItem.nombre).toLowerCase()
+          );
+          if (prod) {
+            prod.stock = Number(prod.stock ?? 0) + qty;
+          }
+        });
+
+        const salePrefix = `Catálogo (${order.id}):`;
+        db.sales = db.sales.filter((s) => !String(s.resumen || "").startsWith(salePrefix));
+
+        const channel = order.canalCobro || (/transfer|pago m[oó]vil|cuenta|banco|punto|tarjeta/i.test(order.metodoPago || "") ? "cuenta" : "efectivo");
+        const refundAmount = Number(order.total || 0);
+
+        order.estado = "reembolsado";
+        db.pedidos[idx] = order;
+
+        db.finanzas.unshift({
+          id: "FIN-REF-" + Date.now(),
+          tipo: "egreso",
+          canal: channel,
+          monto: refundAmount,
+          concepto: `Reembolso pedido ${order.id} — ${order.cliente}`,
+          fecha: new Date().toISOString()
+        });
+
+        saveState();
+        renderAll();
+        showToast(`Pedido ${order.id} reembolsado: stock repuesto y egreso registrado.`);
+      }
+
+      function switchTab(tabName) {
+        document.querySelectorAll(".tab-section").forEach((sec) => sec.classList.add("hidden"));
+        const target = document.getElementById(`tab-${tabName}`);
+        if (target) target.classList.remove("hidden");
+
+        document.querySelectorAll(".tab-btn").forEach((btn) => {
+          const active = btn.getAttribute("data-tab") === tabName;
+          btn.className = active
+            ? "tab-btn px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition bg-sky-600 text-white flex items-center gap-1.5"
+            : "tab-btn px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition bg-slate-800/80 text-slate-300 hover:bg-slate-800 flex items-center gap-1.5";
+        });
+      }
+
+      function grantSixHourProBonus() {
+        const sixHoursMs = (ADMOB_CONFIG.bonusHours || 6) * 3600 * 1000;
+        const baseTime = Math.max(Date.now(), Number(settings.proBonusUntil || 0));
+        settings.proBonusUntil = baseTime + sixHoursMs;
+        saveState(true);
+        subscribeFirestoreListeners();
+        renderHeaderAndPro();
+        showToast(`¡Bono Pro activado por ${ADMOB_CONFIG.bonusHours} horas!`);
+      }
+
+      async function triggerGooglePlayBilling(planType) {
+        const productId =
+          planType === "annual"
+            ? GOOGLE_BILLING_CONFIG.annualProductId
+            : GOOGLE_BILLING_CONFIG.monthlyProductId;
+
+        if (!productId) {
+          showToast("Configura el SKU del producto en GOOGLE_BILLING_CONFIG para iniciar la compra en Google Play.", true);
+          return;
+        }
+
+        if (window.AndroidBilling && typeof window.AndroidBilling.purchaseProduct === "function") {
+          try {
+            window.AndroidBilling.purchaseProduct(productId, planType);
+            return;
+          } catch (_e) {}
+        }
+
+        if (typeof navigator.getDigitalGoodsService === "function") {
+          try {
+            const service = await navigator.getDigitalGoodsService("https://play.google.com/billing");
+            if (service && typeof service.purchase === "function") {
+              await service.purchase(productId);
+              settings.subscriptionActive = true;
+              saveState(true);
+              subscribeFirestoreListeners();
+              renderHeaderAndPro();
+              showToast("¡Suscripción Pro activada!");
+              return;
+            }
+          } catch (_err) {}
+        }
+
+        showToast(`SKU listo (${productId}). Completa la compra desde la app instalada de Google Play.`, false);
+      }
+
+      function renderAll() {
+        renderHeaderAndPro();
+        renderDashboard();
+        renderInventory();
+        renderSaleCart();
+        renderSalesHistory();
+        renderFiados();
+        renderMermas();
+        renderFinanzasAndZ();
+        renderOrders();
+      }
+
+      function bindEvents() {
+        document.querySelectorAll(".tab-btn").forEach((btn) => {
+          btn.addEventListener("click", () => switchTab(btn.getAttribute("data-tab")));
+        });
+
+        document.getElementById("langSelect")?.addEventListener("change", (e) => {
+          currentLang = e.target.value;
+          localStorage.setItem(STORAGE_KEYS.LANG, currentLang);
+          renderAll();
+        });
+
+        document.getElementById("soundToggleBtn")?.addEventListener("click", () => {
+          settings.soundEnabled = !settings.soundEnabled;
+          saveState(false);
+          renderHeaderAndPro();
+        });
+
+        document.getElementById("openProModalBtn")?.addEventListener("click", () => {
+          document.getElementById("proModal")?.classList.remove("hidden");
+        });
+        document.getElementById("closeProModalBtn")?.addEventListener("click", () => {
+          document.getElementById("proModal")?.classList.add("hidden");
+        });
+        document.getElementById("watchRewardAdBtn")?.addEventListener("click", grantSixHourProBonus);
+        document.getElementById("modalRewardAdBtn")?.addEventListener("click", grantSixHourProBonus);
+        document.getElementById("buyMonthlyBtn")?.addEventListener("click", () => triggerGooglePlayBilling("monthly"));
+        document.getElementById("buyAnnualBtn")?.addEventListener("click", () => triggerGooglePlayBilling("annual"));
+
+        document.getElementById("resetInvFormBtn")?.addEventListener("click", resetInventoryForm);
+        document.getElementById("invSearchInput")?.addEventListener("input", renderInventory);
+        document.getElementById("inventoryForm")?.addEventListener("submit", (e) => {
+          e.preventDefault();
+          const editId = document.getElementById("invEditId").value.trim();
+          const nombre = document.getElementById("invName").value.trim();
+          const categoria = document.getElementById("invCategory").value.trim() || "General";
+          const precioCosto = Number(document.getElementById("invCost").value || 0);
+          const precioVenta = Number(document.getElementById("invPrice").value || 0);
+          const stock = Math.max(0, parseInt(document.getElementById("invStock").value || "0", 10));
+          const minStock = Math.max(0, parseInt(document.getElementById("invMinStock").value || "5", 10));
+          const caducidad = document.getElementById("invExpiry").value || "";
+          const mostrarEnCatalogo = Boolean(document.getElementById("invShowCatalog").checked);
+
+          if (!nombre) return;
+
+          if (editId) {
+            const idx = db.inventory.findIndex((p) => String(p.id) === editId);
+            if (idx !== -1) {
+              db.inventory[idx] = {
+                ...db.inventory[idx],
+                nombre,
+                categoria,
+                precioCosto,
+                precioVenta,
+                stock,
+                minStock,
+                caducidad,
+                mostrarEnCatalogo
+              };
+            }
+          } else {
+            db.inventory.unshift({
+              id: "PRD-" + Date.now() + "-" + Math.floor(Math.random() * 100),
+              nombre,
+              categoria,
+              precioCosto,
+              precioVenta,
+              stock,
+              minStock,
+              caducidad,
+              mostrarEnCatalogo
+            });
+          }
+
+          saveState();
+          resetInventoryForm();
+          renderAll();
+          showToast("Producto guardado en inventario.");
+        });
+
+        document.getElementById("addSaleItemBtn")?.addEventListener("click", () => {
+          const prodId = document.getElementById("saleProductSelect").value;
+          const qty = Math.max(1, parseInt(document.getElementById("saleQtyInput").value || "1", 10));
+          const prod = db.inventory.find((p) => String(p.id) === String(prodId));
+          if (!prod) {
+            showToast("Selecciona un producto válido.", true);
+            return;
+          }
+          if (qty > Number(prod.stock || 0)) {
+            showToast(`Stock insuficiente (${prod.stock} disponibles).`, true);
+            return;
+          }
+          const existing = saleDraftItems.find((i) => String(i.id) === String(prod.id));
+          const nextQty = (existing ? existing.cantidad : 0) + qty;
+          if (nextQty > Number(prod.stock || 0)) {
+            showToast(`Stock máximo alcanzado (${prod.stock}).`, true);
+            return;
+          }
+          if (existing) {
+            existing.cantidad = nextQty;
+          } else {
+            saleDraftItems.push({
+              id: prod.id,
+              nombre: prod.nombre,
+              precio: Number(prod.precioVenta || 0),
+              precioCosto: Number(prod.precioCosto || 0),
+              cantidad: qty
+            });
+          }
+          renderSaleCart();
+        });
+
+        document.getElementById("completeSaleBtn")?.addEventListener("click", () => {
+          if (!saleDraftItems.length) {
+            showToast("Agrega al menos un producto a la venta.", true);
+            return;
+          }
+
+          let total = 0;
+          let costoTotal = 0;
+
+          saleDraftItems.forEach((line) => {
+            const qty = Number(line.cantidad || 1);
+            total += Number(line.precio || 0) * qty;
+            costoTotal += Number(line.precioCosto || 0) * qty;
+
+            const prod = db.inventory.find((p) => String(p.id) === String(line.id));
+            if (prod) {
+              prod.stock = Math.max(0, Number(prod.stock || 0) - qty);
+            }
+          });
+
+          const canal = document.getElementById("saleChannelSelect").value || "efectivo";
+          const cliente = (document.getElementById("saleCustomerInput").value || "").trim() || "Consumidor final";
+          const ref = (document.getElementById("saleRefInput").value || "").trim();
+          const resumen = saleDraftItems.map((i) => `${i.cantidad}x ${i.nombre}`).join(", ");
+
+          const saleRecord = {
+            id: "VTA-" + Date.now(),
+            fecha: new Date().toISOString(),
+            cliente,
+            canal,
+            referencia: ref,
+            items: saleDraftItems.map((i) => ({ id: i.id, nombre: i.nombre, precio: i.precio, cantidad: i.cantidad })),
+            resumen,
+            total: Number(total.toFixed(2)),
+            costoTotal: Number(costoTotal.toFixed(2))
+          };
+
+          db.sales.unshift(saleRecord);
+          db.finanzas.unshift({
+            id: "FIN-" + Date.now(),
+            tipo: "ingreso",
+            canal,
+            monto: saleRecord.total,
+            concepto: `Venta ${saleRecord.id} (${cliente})${ref ? ` - Ref: ${ref}` : ""}`,
+            fecha: saleRecord.fecha
+          });
+
+          lastTicketText = buildTicketText(saleRecord);
+          document.getElementById("ticketPreviewBox").textContent = lastTicketText;
+
+          saleDraftItems = [];
+          document.getElementById("saleCustomerInput").value = "";
+          document.getElementById("saleRefInput").value = "";
+          document.getElementById("saleQtyInput").value = "1";
+
+          playSaleSound();
+          saveState();
+          renderAll();
+          showToast("Venta registrada y stock actualizado.");
+        });
+
+        document.getElementById("printThermalBtn")?.addEventListener("click", printThermalOrBluetooth);
+        document.getElementById("exportPdfBtn")?.addEventListener("click", exportTicketPdf);
+
+        document.getElementById("fiadoForm")?.addEventListener("submit", (e) => {
+          e.preventDefault();
+          const cliente = document.getElementById("fiadoClient").value.trim();
+          const prodId = document.getElementById("fiadoProductSelect").value;
+          const qty = Math.max(0, parseInt(document.getElementById("fiadoQty").value || "0", 10));
+          const monto = Number(document.getElementById("fiadoAmount").value || 0);
+          if (!cliente || monto <= 0) return;
+
+          let concepto = "Crédito / Fiado";
+          if (prodId) {
+            const prod = db.inventory.find((p) => String(p.id) === String(prodId));
+            if (prod) {
+              concepto = `${qty || 1}x ${prod.nombre}`;
+              if (qty > 0) {
+                prod.stock = Math.max(0, Number(prod.stock || 0) - qty);
+              }
+            }
+          }
+
+          db.fiados.unshift({
+            id: "FIA-" + Date.now(),
+            cliente,
+            concepto,
+            montoTotal: Number(monto.toFixed(2)),
+            pendiente: Number(monto.toFixed(2)),
+            fecha: new Date().toISOString()
+          });
+
+          document.getElementById("fiadoForm").reset();
+          document.getElementById("fiadoQty").value = "1";
+          saveState();
+          renderAll();
+          showToast("Fiado registrado.");
+        });
+
+        document.getElementById("mermaForm")?.addEventListener("submit", (e) => {
+          e.preventDefault();
+          const prodId = document.getElementById("mermaProductSelect").value;
+          const qty = Math.max(1, parseInt(document.getElementById("mermaQty").value || "1", 10));
+          const motivo = document.getElementById("mermaReason").value || "Merma operativa";
+          const prod = db.inventory.find((p) => String(p.id) === String(prodId));
+          if (!prod) return;
+
+          const actualQty = Math.min(qty, Number(prod.stock || 0));
+          prod.stock = Math.max(0, Number(prod.stock || 0) - actualQty);
+          const costoImpacto = Number((Number(prod.precioCosto || 0) * actualQty).toFixed(2));
+
+          db.mermas.unshift({
+            id: "MRM-" + Date.now(),
+            productoId: prod.id,
+            productoNombre: prod.nombre,
+            cantidad: actualQty,
+            motivo,
+            costoImpacto,
+            fecha: new Date().toISOString()
+          });
+
+          document.getElementById("mermaQty").value = "1";
+          saveState();
+          renderAll();
+          showToast("Merma registrada y stock descontado.");
+        });
+
+        document.getElementById("financeForm")?.addEventListener("submit", (e) => {
+          e.preventDefault();
+          const tipo = document.getElementById("finType").value || "ingreso";
+          const canal = document.getElementById("finChannel").value || "efectivo";
+          const monto = Number(document.getElementById("finAmount").value || 0);
+          const concepto = document.getElementById("finConcept").value.trim();
+          if (monto <= 0 || !concepto) return;
+
+          db.finanzas.unshift({
+            id: "FIN-" + Date.now(),
+            tipo,
+            canal,
+            monto: Number(monto.toFixed(2)),
+            concepto,
+            fecha: new Date().toISOString()
+          });
+
+          document.getElementById("financeForm").reset();
+          saveState();
+          renderAll();
+          showToast("Movimiento financiero guardado.");
+        });
+
+        // Cierre Z Form (WebView-safe adjustment handling without blocking native confirm)
+        document.getElementById("zClosureForm")?.addEventListener("submit", (e) => {
+          e.preventDefault();
+          const bal = calculateBalances();
+          const counted = Number(document.getElementById("zCountedCash").value || 0);
+          const nota = (document.getElementById("zNote").value || "").trim();
+          const autoAdjust = Boolean(document.getElementById("zAutoAdjustCheckbox")?.checked);
+          const diff = Number((counted - bal.cash).toFixed(2));
+
+          const zRecord = {
+            id: "Z-" + new Date().toISOString().slice(0, 10) + "-" + String(db.zClosures.length + 1).padStart(3, "0"),
+            fecha: new Date().toISOString(),
+            efectivoTeorico: bal.cash,
+            efectivoContado: Number(counted.toFixed(2)),
+            saldoCuenta: bal.account,
+            diferencia: diff,
+            nota,
+            autor: AUTHOR_META.author
+          };
+
+          if (diff !== 0 && autoAdjust) {
+            db.finanzas.unshift({
+              id: "FIN-Z-" + Date.now(),
+              tipo: diff > 0 ? "ingreso" : "egreso",
+              canal: "efectivo",
+              monto: Math.abs(diff),
+              concepto: `Ajuste Cierre Z (${zRecord.id})`,
+              fecha: new Date().toISOString()
+            });
+          }
+
+          db.zClosures.unshift(zRecord);
+          document.getElementById("zClosureForm").reset();
+          if (document.getElementById("zAutoAdjustCheckbox")) {
+            document.getElementById("zAutoAdjustCheckbox").checked = true;
+          }
+          saveState();
+          renderAll();
+          showToast(`Cierre Z ${zRecord.id} guardado (Dif: ${formatMoney(diff)}).`);
+        });
+
+        document.getElementById("settingsForm")?.addEventListener("submit", (e) => {
+          e.preventDefault();
+          settings.businessName = (document.getElementById("setBusinessName").value || "").trim() || "Gestor Pro";
+          settings.businessPhone = (document.getElementById("setBusinessPhone").value || "").trim();
+          settings.businessAddress = (document.getElementById("setBusinessAddress").value || "").trim();
+          settings.currencySymbol = (document.getElementById("setCurrency").value || "").trim() || "$";
+          settings.syncCode = (document.getElementById("setSyncCode").value || "").trim();
+
+          saveState(true);
+          subscribeFirestoreListeners();
+          renderAll();
+          showToast("Ajustes guardados.");
+        });
+
+        document.getElementById("exportJsonBtn")?.addEventListener("click", () => {
+          const payload = {
+            app: "Gestor Pro",
+            version: "2026.11.19-v2",
+            author: AUTHOR_META.author,
+            copyright: AUTHOR_META.copyright,
+            exportedAt: new Date().toISOString(),
+            settings,
+            db
+          };
+          const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = `gestor-pro-respaldo-${new Date().toISOString().slice(0, 10)}.json`;
+          a.click();
+          URL.revokeObjectURL(url);
+          showToast("Respaldo JSON exportado.");
+        });
+
+        document.getElementById("importJsonInput")?.addEventListener("change", (e) => {
+          const file = e.target.files && e.target.files[0];
+          if (!file) return;
+          const reader = new FileReader();
+          reader.onload = (ev) => {
+            try {
+              const parsed = JSON.parse(String(ev.target.result || "{}"));
+              if (parsed.settings && typeof parsed.settings === "object") {
+                settings = { ...settings, ...parsed.settings };
+              }
+              if (parsed.db && typeof parsed.db === "object") {
+                db = {
+                  inventory: Array.isArray(parsed.db.inventory) ? parsed.db.inventory : [],
+                  sales: Array.isArray(parsed.db.sales) ? parsed.db.sales : [],
+                  fiados: Array.isArray(parsed.db.fiados) ? parsed.db.fiados : [],
+                  mermas: Array.isArray(parsed.db.mermas) ? parsed.db.mermas : [],
+                  finanzas: Array.isArray(parsed.db.finanzas) ? parsed.db.finanzas : [],
+                  zClosures: Array.isArray(parsed.db.zClosures) ? parsed.db.zClosures : [],
+                  pedidos: Array.isArray(parsed.db.pedidos) ? parsed.db.pedidos : []
+                };
+              }
+              syncSettingsInputs();
+              saveState(true);
+              subscribeFirestoreListeners();
+              renderAll();
+              showToast("Respaldo JSON importado correctamente.");
+            } catch (_err) {
+              showToast("Archivo JSON no válido.", true);
+            }
+          };
+          reader.readAsText(file);
+          e.target.value = "";
+        });
+
+        document.getElementById("syncCloudNowBtn")?.addEventListener("click", async () => {
+          if (!isProUnlocked()) {
+            showToast("Activa Pro o el Bono Pro de 6h para sincronizar con Firestore.", true);
+            return;
+          }
+          if (!settings.syncCode) {
+            showToast("Define un Código de Sincronización en Ajustes.", true);
+            return;
+          }
+          try {
+            await pushSnapshotToFirestore();
+            subscribeFirestoreListeners();
+            showToast("Sincronización con Firestore completada.");
+          } catch (_err) {
+            showToast("No se pudo sincronizar con Firestore.", true);
+          }
+        });
+
+        window.addEventListener("storage", (e) => {
+          if (e.key === STORAGE_KEYS.DB || e.key === STORAGE_KEYS.SETTINGS) {
+            loadState();
+            syncSettingsInputs();
+            renderAll();
+          }
+        });
+      }
+
+      function syncSettingsInputs() {
+        document.getElementById("setBusinessName").value = settings.businessName || "";
+        document.getElementById("setBusinessPhone").value = settings.businessPhone || "";
+        document.getElementById("setBusinessAddress").value = settings.businessAddress || "";
+        document.getElementById("setCurrency").value = settings.currencySymbol || "$";
+        document.getElementById("setSyncCode").value = settings.syncCode || "";
+      }
+
+      function registerServiceWorker() {
+        if ("serviceWorker" in navigator) {
+          window.addEventListener("load", () => {
+            navigator.serviceWorker.register("./sw.js").catch(() => {});
+          });
+        }
+      }
+
+      loadState();
+      syncSettingsInputs();
+      renderAll();
+      bindEvents();
+      subscribeFirestoreListeners();
+      registerServiceWorker();
+
+      const params = new URLSearchParams(window.location.search);
+      const initialTab = params.get("tab");
+      if (initialTab && document.getElementById(`tab-${initialTab}`)) {
+        switchTab(initialTab);
+      }
+    })();
+  </script>
+</body>
+</html>
